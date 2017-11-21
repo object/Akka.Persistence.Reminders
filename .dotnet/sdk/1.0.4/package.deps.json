@@ -1,0 +1,836 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v1.0",
+    "signature": "1c97c04fcdad70c956a66bee0d19a1e0d0844817"
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v1.0": {
+      "package/15.0.0": {
+        "dependencies": {
+          "Microsoft.TestPlatform.CommunicationUtilities": "15.0.0",
+          "Microsoft.TestPlatform.CoreUtilities": "15.0.0",
+          "Microsoft.TestPlatform.CrossPlatEngine": "15.0.0",
+          "Microsoft.TestPlatform.Utilities": "15.0.0",
+          "Microsoft.TestPlatform.VsTestConsole.TranslationLayer": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.Client": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.Common": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.ObjectModel": "15.0.0",
+          "vstest.console": "15.0.0"
+        },
+        "runtime": {
+          "package.dll": {}
+        }
+      },
+      "microsoft.dotnet.platformabstractions/1.0.1-beta-000933": {
+        "runtime": {
+          "lib/netstandard1.3/Microsoft.DotNet.PlatformAbstractions.dll": {}
+        }
+      },
+      "microsoft.extensions.dependencymodel/1.0.1-beta-000933": {
+        "dependencies": {
+          "Microsoft.DotNet.PlatformAbstractions": "1.0.1-beta-000933",
+          "Newtonsoft.Json": "9.0.1"
+        },
+        "runtime": {
+          "lib/netstandard1.6/Microsoft.Extensions.DependencyModel.dll": {}
+        }
+      },
+      "newtonsoft.json/9.0.1": {
+        "dependencies": {
+          "System.Runtime.Serialization.Primitives": "4.1.1"
+        },
+        "runtime": {
+          "lib/netstandard1.0/Newtonsoft.Json.dll": {}
+        }
+      },
+      "system.collections.nongeneric/4.0.1": {
+        "runtime": {
+          "lib/netstandard1.3/System.Collections.NonGeneric.dll": {}
+        }
+      },
+      "system.collections.specialized/4.0.1": {
+        "dependencies": {
+          "System.Collections.NonGeneric": "4.0.1"
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.Collections.Specialized.dll": {}
+        }
+      },
+      "system.componentmodel.eventbasedasync/4.0.11": {
+        "runtime": {
+          "lib/netstandard1.3/System.ComponentModel.EventBasedAsync.dll": {}
+        }
+      },
+      "system.componentmodel.primitives/4.1.0": {
+        "runtime": {
+          "lib/netstandard1.0/System.ComponentModel.Primitives.dll": {}
+        }
+      },
+      "system.componentmodel.typeconverter/4.1.0": {
+        "dependencies": {
+          "System.Collections.NonGeneric": "4.0.1",
+          "System.Collections.Specialized": "4.0.1",
+          "System.ComponentModel.Primitives": "4.1.0"
+        },
+        "runtime": {
+          "lib/netstandard1.5/System.ComponentModel.TypeConverter.dll": {}
+        }
+      },
+      "system.diagnostics.contracts/4.0.0": {
+        "runtime": {
+          "lib/DNXCore50/System.Diagnostics.Contracts.dll": {}
+        }
+      },
+      "system.diagnostics.textwritertracelistener/4.0.0": {
+        "dependencies": {
+          "System.Diagnostics.TraceSource": "4.0.0"
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.Diagnostics.TextWriterTraceListener.dll": {}
+        }
+      },
+      "system.diagnostics.tracesource/4.0.0": {
+        "runtimeTargets": {
+          "runtimes/unix/lib/netstandard1.3/System.Diagnostics.TraceSource.dll": {
+            "rid": "unix",
+            "assetType": "runtime"
+          },
+          "runtimes/win/lib/netstandard1.3/System.Diagnostics.TraceSource.dll": {
+            "rid": "win",
+            "assetType": "runtime"
+          }
+        }
+      },
+      "system.private.datacontractserialization/4.1.1": {
+        "dependencies": {
+          "System.Runtime.Serialization.Primitives": "4.1.1",
+          "System.Xml.XmlSerializer": "4.0.11"
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.Private.DataContractSerialization.dll": {}
+        }
+      },
+      "system.runtime.serialization.json/4.0.2": {
+        "dependencies": {
+          "System.Private.DataContractSerialization": "4.1.1"
+        },
+        "runtime": {
+          "lib/netstandard1.3/System.Runtime.Serialization.Json.dll": {}
+        }
+      },
+      "system.runtime.serialization.primitives/4.1.1": {
+        "runtime": {
+          "lib/netstandard1.3/System.Runtime.Serialization.Primitives.dll": {}
+        }
+      },
+      "system.xml.xmlserializer/4.0.11": {
+        "runtime": {
+          "lib/netstandard1.3/System.Xml.XmlSerializer.dll": {}
+        }
+      },
+      "system.xml.xpath.xmldocument/4.0.1": {
+        "runtime": {
+          "lib/netstandard1.3/System.Xml.XPath.XmlDocument.dll": {}
+        }
+      },
+      "microsoft.testplatform.communicationutilities/15.0.0": {
+        "dependencies": {
+          "Microsoft.TestPlatform.CoreUtilities": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.Common": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.ObjectModel": "15.0.0",
+          "Newtonsoft.Json": "9.0.1",
+          "System.Runtime.Serialization.Primitives": "4.1.1"
+        },
+        "runtime": {
+          "Microsoft.TestPlatform.CommunicationUtilities.dll": {}
+        },
+        "resources": {
+          "cs/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "cs"
+          },
+          "de/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "de"
+          },
+          "es/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "es"
+          },
+          "fr/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "fr"
+          },
+          "it/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "it"
+          },
+          "ja/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "ja"
+          },
+          "ko/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "ko"
+          },
+          "pl/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "pl"
+          },
+          "pt-BR/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "ru/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "ru"
+          },
+          "tr/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "tr"
+          },
+          "zh-Hans/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "zh-Hant/Microsoft.TestPlatform.CommunicationUtilities.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "microsoft.testplatform.coreutilities/15.0.0": {
+        "dependencies": {
+          "System.Diagnostics.TextWriterTraceListener": "4.0.0",
+          "System.Diagnostics.TraceSource": "4.0.0"
+        },
+        "runtime": {
+          "Microsoft.TestPlatform.CoreUtilities.dll": {}
+        },
+        "resources": {
+          "cs/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "cs"
+          },
+          "de/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "de"
+          },
+          "es/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "es"
+          },
+          "fr/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "fr"
+          },
+          "it/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "it"
+          },
+          "ja/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "ja"
+          },
+          "ko/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "ko"
+          },
+          "pl/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "pl"
+          },
+          "pt-BR/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "ru/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "ru"
+          },
+          "tr/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "tr"
+          },
+          "zh-Hans/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "zh-Hant/Microsoft.TestPlatform.CoreUtilities.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "microsoft.testplatform.crossplatengine/15.0.0": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyModel": "1.0.1-beta-000933",
+          "Microsoft.TestPlatform.CommunicationUtilities": "15.0.0",
+          "Microsoft.TestPlatform.CoreUtilities": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.Common": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.ObjectModel": "15.0.0"
+        },
+        "runtime": {
+          "Microsoft.TestPlatform.CrossPlatEngine.dll": {}
+        },
+        "resources": {
+          "cs/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "cs"
+          },
+          "de/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "de"
+          },
+          "es/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "es"
+          },
+          "fr/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "fr"
+          },
+          "it/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "it"
+          },
+          "ja/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "ja"
+          },
+          "ko/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "ko"
+          },
+          "pl/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "pl"
+          },
+          "pt-BR/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "ru/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "ru"
+          },
+          "tr/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "tr"
+          },
+          "zh-Hans/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "zh-Hant/Microsoft.TestPlatform.CrossPlatEngine.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "microsoft.testplatform.utilities/15.0.0": {
+        "dependencies": {
+          "Microsoft.TestPlatform.CoreUtilities": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.ObjectModel": "15.0.0"
+        },
+        "runtime": {
+          "Microsoft.TestPlatform.Utilities.dll": {}
+        },
+        "resources": {
+          "cs/Microsoft.TestPlatform.Utilities.resources.dll": {
+            "locale": "cs"
+          },
+          "de/Microsoft.TestPlatform.Utilities.resources.dll": {
+            "locale": "de"
+          },
+          "es/Microsoft.TestPlatform.Utilities.resources.dll": {
+            "locale": "es"
+          },
+          "fr/Microsoft.TestPlatform.Utilities.resources.dll": {
+            "locale": "fr"
+          },
+          "it/Microsoft.TestPlatform.Utilities.resources.dll": {
+            "locale": "it"
+          },
+          "ja/Microsoft.TestPlatform.Utilities.resources.dll": {
+            "locale": "ja"
+          },
+          "ko/Microsoft.TestPlatform.Utilities.resources.dll": {
+            "locale": "ko"
+          },
+          "pl/Microsoft.TestPlatform.Utilities.resources.dll": {
+            "locale": "pl"
+          },
+          "pt-BR/Microsoft.TestPlatform.Utilities.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "ru/Microsoft.TestPlatform.Utilities.resources.dll": {
+            "locale": "ru"
+          },
+          "tr/Microsoft.TestPlatform.Utilities.resources.dll": {
+            "locale": "tr"
+          },
+          "zh-Hans/Microsoft.TestPlatform.Utilities.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "zh-Hant/Microsoft.TestPlatform.Utilities.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "microsoft.testplatform.vstestconsole.translationlayer/15.0.0": {
+        "dependencies": {
+          "Microsoft.TestPlatform.CommunicationUtilities": "15.0.0",
+          "Microsoft.TestPlatform.CoreUtilities": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.Common": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.ObjectModel": "15.0.0",
+          "System.ComponentModel.TypeConverter": "4.1.0",
+          "System.Runtime.Serialization.Primitives": "4.1.1",
+          "System.Xml.XPath.XmlDocument": "4.0.1"
+        },
+        "runtime": {
+          "Microsoft.TestPlatform.VsTestConsole.TranslationLayer.dll": {}
+        },
+        "resources": {
+          "cs/Microsoft.TestPlatform.VsTestConsole.TranslationLayer.resources.dll": {
+            "locale": "cs"
+          },
+          "de/Microsoft.TestPlatform.VsTestConsole.TranslationLayer.resources.dll": {
+            "locale": "de"
+          },
+          "es/Microsoft.TestPlatform.VsTestConsole.TranslationLayer.resources.dll": {
+            "locale": "es"
+          },
+          "fr/Microsoft.TestPlatform.VsTestConsole.TranslationLayer.resources.dll": {
+            "locale": "fr"
+          },
+          "it/Microsoft.TestPlatform.VsTestConsole.TranslationLayer.resources.dll": {
+            "locale": "it"
+          },
+          "ja/Microsoft.TestPlatform.VsTestConsole.TranslationLayer.resources.dll": {
+            "locale": "ja"
+          },
+          "ko/Microsoft.TestPlatform.VsTestConsole.TranslationLayer.resources.dll": {
+            "locale": "ko"
+          },
+          "pl/Microsoft.TestPlatform.VsTestConsole.TranslationLayer.resources.dll": {
+            "locale": "pl"
+          },
+          "pt-BR/Microsoft.TestPlatform.VsTestConsole.TranslationLayer.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "ru/Microsoft.TestPlatform.VsTestConsole.TranslationLayer.resources.dll": {
+            "locale": "ru"
+          },
+          "tr/Microsoft.TestPlatform.VsTestConsole.TranslationLayer.resources.dll": {
+            "locale": "tr"
+          },
+          "zh-Hans/Microsoft.TestPlatform.VsTestConsole.TranslationLayer.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "zh-Hant/Microsoft.TestPlatform.VsTestConsole.TranslationLayer.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "microsoft.visualstudio.testplatform.client/15.0.0": {
+        "dependencies": {
+          "Microsoft.TestPlatform.CommunicationUtilities": "15.0.0",
+          "Microsoft.TestPlatform.CoreUtilities": "15.0.0",
+          "Microsoft.TestPlatform.CrossPlatEngine": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.Common": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.ObjectModel": "15.0.0"
+        },
+        "runtime": {
+          "Microsoft.VisualStudio.TestPlatform.Client.dll": {}
+        },
+        "resources": {
+          "cs/Microsoft.VisualStudio.TestPlatform.Client.resources.dll": {
+            "locale": "cs"
+          },
+          "de/Microsoft.VisualStudio.TestPlatform.Client.resources.dll": {
+            "locale": "de"
+          },
+          "es/Microsoft.VisualStudio.TestPlatform.Client.resources.dll": {
+            "locale": "es"
+          },
+          "fr/Microsoft.VisualStudio.TestPlatform.Client.resources.dll": {
+            "locale": "fr"
+          },
+          "it/Microsoft.VisualStudio.TestPlatform.Client.resources.dll": {
+            "locale": "it"
+          },
+          "ja/Microsoft.VisualStudio.TestPlatform.Client.resources.dll": {
+            "locale": "ja"
+          },
+          "ko/Microsoft.VisualStudio.TestPlatform.Client.resources.dll": {
+            "locale": "ko"
+          },
+          "pl/Microsoft.VisualStudio.TestPlatform.Client.resources.dll": {
+            "locale": "pl"
+          },
+          "pt-BR/Microsoft.VisualStudio.TestPlatform.Client.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "ru/Microsoft.VisualStudio.TestPlatform.Client.resources.dll": {
+            "locale": "ru"
+          },
+          "tr/Microsoft.VisualStudio.TestPlatform.Client.resources.dll": {
+            "locale": "tr"
+          },
+          "zh-Hans/Microsoft.VisualStudio.TestPlatform.Client.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "zh-Hant/Microsoft.VisualStudio.TestPlatform.Client.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "microsoft.visualstudio.testplatform.common/15.0.0": {
+        "dependencies": {
+          "Microsoft.TestPlatform.CoreUtilities": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.ObjectModel": "15.0.0"
+        },
+        "runtime": {
+          "Microsoft.VisualStudio.TestPlatform.Common.dll": {}
+        },
+        "resources": {
+          "cs/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "cs"
+          },
+          "de/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "de"
+          },
+          "es/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "es"
+          },
+          "fr/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "fr"
+          },
+          "it/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "it"
+          },
+          "ja/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "ja"
+          },
+          "ko/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "ko"
+          },
+          "pl/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "pl"
+          },
+          "pt-BR/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "ru/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "ru"
+          },
+          "tr/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "tr"
+          },
+          "zh-Hans/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "zh-Hant/Microsoft.VisualStudio.TestPlatform.Common.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "microsoft.visualstudio.testplatform.extensions.trxlogger/15.0.0": {
+        "dependencies": {
+          "Microsoft.TestPlatform.CoreUtilities": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.ObjectModel": "15.0.0",
+          "System.Collections.NonGeneric": "4.0.1",
+          "System.Collections.Specialized": "4.0.1"
+        },
+        "runtime": {
+          "Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.dll": {}
+        },
+        "resources": {
+          "cs/Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.resources.dll": {
+            "locale": "cs"
+          },
+          "de/Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.resources.dll": {
+            "locale": "de"
+          },
+          "es/Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.resources.dll": {
+            "locale": "es"
+          },
+          "fr/Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.resources.dll": {
+            "locale": "fr"
+          },
+          "it/Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.resources.dll": {
+            "locale": "it"
+          },
+          "ja/Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.resources.dll": {
+            "locale": "ja"
+          },
+          "ko/Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.resources.dll": {
+            "locale": "ko"
+          },
+          "pl/Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.resources.dll": {
+            "locale": "pl"
+          },
+          "pt-BR/Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "ru/Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.resources.dll": {
+            "locale": "ru"
+          },
+          "tr/Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.resources.dll": {
+            "locale": "tr"
+          },
+          "zh-Hans/Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "zh-Hant/Microsoft.VisualStudio.TestPlatform.Extensions.TrxLogger.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "microsoft.visualstudio.testplatform.objectmodel/15.0.0": {
+        "dependencies": {
+          "Microsoft.TestPlatform.CoreUtilities": "15.0.0",
+          "System.ComponentModel.EventBasedAsync": "4.0.11",
+          "System.ComponentModel.TypeConverter": "4.1.0",
+          "System.Runtime.Serialization.Json": "4.0.2",
+          "System.Runtime.Serialization.Primitives": "4.1.1",
+          "System.Xml.XPath.XmlDocument": "4.0.1"
+        },
+        "runtime": {
+          "Microsoft.VisualStudio.TestPlatform.ObjectModel.dll": {}
+        },
+        "resources": {
+          "cs/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "cs"
+          },
+          "de/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "de"
+          },
+          "es/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "es"
+          },
+          "fr/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "fr"
+          },
+          "it/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "it"
+          },
+          "ja/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "ja"
+          },
+          "ko/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "ko"
+          },
+          "pl/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "pl"
+          },
+          "pt-BR/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "ru/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "ru"
+          },
+          "tr/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "tr"
+          },
+          "zh-Hans/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "zh-Hant/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      },
+      "vstest.console/15.0.0": {
+        "dependencies": {
+          "Microsoft.TestPlatform.CommunicationUtilities": "15.0.0",
+          "Microsoft.TestPlatform.CoreUtilities": "15.0.0",
+          "Microsoft.TestPlatform.CrossPlatEngine": "15.0.0",
+          "Microsoft.TestPlatform.Utilities": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.Client": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.Common": "15.0.0",
+          "Microsoft.VisualStudio.TestPlatform.ObjectModel": "15.0.0",
+          "System.ComponentModel.TypeConverter": "4.1.0",
+          "System.Diagnostics.Contracts": "4.0.0"
+        },
+        "runtime": {
+          "vstest.console.dll": {}
+        },
+        "resources": {
+          "cs/vstest.console.resources.dll": {
+            "locale": "cs"
+          },
+          "de/vstest.console.resources.dll": {
+            "locale": "de"
+          },
+          "es/vstest.console.resources.dll": {
+            "locale": "es"
+          },
+          "fr/vstest.console.resources.dll": {
+            "locale": "fr"
+          },
+          "it/vstest.console.resources.dll": {
+            "locale": "it"
+          },
+          "ja/vstest.console.resources.dll": {
+            "locale": "ja"
+          },
+          "ko/vstest.console.resources.dll": {
+            "locale": "ko"
+          },
+          "pl/vstest.console.resources.dll": {
+            "locale": "pl"
+          },
+          "pt-BR/vstest.console.resources.dll": {
+            "locale": "pt-BR"
+          },
+          "ru/vstest.console.resources.dll": {
+            "locale": "ru"
+          },
+          "tr/vstest.console.resources.dll": {
+            "locale": "tr"
+          },
+          "zh-Hans/vstest.console.resources.dll": {
+            "locale": "zh-Hans"
+          },
+          "zh-Hant/vstest.console.resources.dll": {
+            "locale": "zh-Hant"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "package/15.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "microsoft.dotnet.platformabstractions/1.0.1-beta-000933": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-LXRRMcpM4O0VAJLyV5vWtKZn0xyPaX+dHiMqGYbCUy44Aoljvd4s1oNsJIb1/xD0IoPoTeoil4a/Wut2rtRQvQ==",
+      "path": "microsoft.dotnet.platformabstractions/1.0.1-beta-000933",
+      "hashPath": "microsoft.dotnet.platformabstractions.1.0.1-beta-000933.nupkg.sha512"
+    },
+    "microsoft.extensions.dependencymodel/1.0.1-beta-000933": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-fBhcp6rJ/3D3r0klodOGohDFU9GydqsKqC04HghOGNHmAIJgeerh8y8NdsErZiltxWvbSdiegzPt1rmF+o9XIw==",
+      "path": "microsoft.extensions.dependencymodel/1.0.1-beta-000933",
+      "hashPath": "microsoft.extensions.dependencymodel.1.0.1-beta-000933.nupkg.sha512"
+    },
+    "newtonsoft.json/9.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-U82mHQSKaIk+lpSVCbWYKNavmNH1i5xrExDEquU1i6I5pV6UMOqRnJRSlKO3cMPfcpp0RgDY+8jUXHdQ4IfXvw==",
+      "path": "newtonsoft.json/9.0.1",
+      "hashPath": "newtonsoft.json.9.0.1.nupkg.sha512"
+    },
+    "system.collections.nongeneric/4.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-hMxFT2RhhlffyCdKLDXjx8WEC5JfCvNozAZxCablAuFRH74SCV4AgzE8yJCh/73bFnEoZgJ9MJmkjQ0dJmnKqA==",
+      "path": "system.collections.nongeneric/4.0.1",
+      "hashPath": "system.collections.nongeneric.4.0.1.nupkg.sha512"
+    },
+    "system.collections.specialized/4.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-/HKQyVP0yH1I0YtK7KJL/28snxHNH/bi+0lgk/+MbURF6ULhAE31MDI+NZDerNWu264YbxklXCCygISgm+HMug==",
+      "path": "system.collections.specialized/4.0.1",
+      "hashPath": "system.collections.specialized.4.0.1.nupkg.sha512"
+    },
+    "system.componentmodel.eventbasedasync/4.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Z7SO6vvQIR84daPE4uhaNdef9CjgjDMGYkas8epUhf0U3WGuaGgZ0Mm4QuNycMdbHUY8KEdZrtgxonkAiJaAlA==",
+      "path": "system.componentmodel.eventbasedasync/4.0.11",
+      "hashPath": "system.componentmodel.eventbasedasync.4.0.11.nupkg.sha512"
+    },
+    "system.componentmodel.primitives/4.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-sc/7eVCdxPrp3ljpgTKVaQGUXiW05phNWvtv/m2kocXqrUQvTVWKou1Edas2aDjTThLPZOxPYIGNb/HN0QjURg==",
+      "path": "system.componentmodel.primitives/4.1.0",
+      "hashPath": "system.componentmodel.primitives.4.1.0.nupkg.sha512"
+    },
+    "system.componentmodel.typeconverter/4.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-MnDAlaeJZy9pdB5ZdOlwdxfpI+LJQ6e0hmH7d2+y2LkiD8DRJynyDYl4Xxf3fWFm7SbEwBZh4elcfzONQLOoQw==",
+      "path": "system.componentmodel.typeconverter/4.1.0",
+      "hashPath": "system.componentmodel.typeconverter.4.1.0.nupkg.sha512"
+    },
+    "system.diagnostics.contracts/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lMc7HNmyIsu0pKTdA4wf+FMq5jvouUd+oUpV4BdtyqoV0Pkbg9u/7lTKFGqpjZRQosWHq1+B32Lch2wf4AmloA==",
+      "path": "system.diagnostics.contracts/4.0.0",
+      "hashPath": "system.diagnostics.contracts.4.0.0.nupkg.sha512"
+    },
+    "system.diagnostics.textwritertracelistener/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-w36Dr8yKy8xP150qPANe7Td+/zOI3G62ImRcHDIEW+oUXUuTKZHd4DHmqRx5+x8RXd85v3tXd1uhNTfsr+yxjA==",
+      "path": "system.diagnostics.textwritertracelistener/4.0.0",
+      "hashPath": "system.diagnostics.textwritertracelistener.4.0.0.nupkg.sha512"
+    },
+    "system.diagnostics.tracesource/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6WVCczFZKXwpWpzd/iJkYnsmWTSFFiU24Xx/YdHXBcu+nFI/ehTgeqdJQFbtRPzbrO3KtRNjvkhtj4t5/WwWsA==",
+      "path": "system.diagnostics.tracesource/4.0.0",
+      "hashPath": "system.diagnostics.tracesource.4.0.0.nupkg.sha512"
+    },
+    "system.private.datacontractserialization/4.1.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lcqFBUaCZxPiUkA4dlSOoPZGtZsAuuElH2XHgLwGLxd7ZozWetV5yiz0qGAV2AUYOqw97MtZBjbLMN16Xz4vXA==",
+      "path": "system.private.datacontractserialization/4.1.1",
+      "hashPath": "system.private.datacontractserialization.4.1.1.nupkg.sha512"
+    },
+    "system.runtime.serialization.json/4.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-+7DIJhnKYgCzUgcLbVTtRQb2l1M0FP549XFlFkQM5lmNiUBl44AfNbx4bz61xA8PzLtlYwfmif4JJJW7MPPnjg==",
+      "path": "system.runtime.serialization.json/4.0.2",
+      "hashPath": "system.runtime.serialization.json.4.0.2.nupkg.sha512"
+    },
+    "system.runtime.serialization.primitives/4.1.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-HZ6Du5QrTG8MNJbf4e4qMO3JRAkIboGT5Fk804uZtg3Gq516S7hAqTm2UZKUHa7/6HUGdVy3AqMQKbns06G/cg==",
+      "path": "system.runtime.serialization.primitives/4.1.1",
+      "hashPath": "system.runtime.serialization.primitives.4.1.1.nupkg.sha512"
+    },
+    "system.xml.xmlserializer/4.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-FrazwwqfIXTfq23mfv4zH+BjqkSFNaNFBtjzu3I9NRmG8EELYyrv/fJnttCIwRMFRR/YKXF1hmsMmMEnl55HGw==",
+      "path": "system.xml.xmlserializer/4.0.11",
+      "hashPath": "system.xml.xmlserializer.4.0.11.nupkg.sha512"
+    },
+    "system.xml.xpath.xmldocument/4.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Zm2BdeanuncYs3NhCj4c9e1x3EXFzFBVv2wPEc/Dj4ZbI9R8ecLSR5frAsx4zJCPBtKQreQ7Q/KxJEohJZbfzA==",
+      "path": "system.xml.xpath.xmldocument/4.0.1",
+      "hashPath": "system.xml.xpath.xmldocument.4.0.1.nupkg.sha512"
+    },
+    "microsoft.testplatform.communicationutilities/15.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "microsoft.testplatform.coreutilities/15.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "microsoft.testplatform.crossplatengine/15.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "microsoft.testplatform.utilities/15.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "microsoft.testplatform.vstestconsole.translationlayer/15.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "microsoft.visualstudio.testplatform.client/15.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "microsoft.visualstudio.testplatform.common/15.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "microsoft.visualstudio.testplatform.extensions.trxlogger/15.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "microsoft.visualstudio.testplatform.objectmodel/15.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "vstest.console/15.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

@@ -12,6 +12,11 @@ using Akka.Actor;
 
 namespace Akka.Persistence.Reminders
 {
+    public interface IReminderFormat { }
+    public interface IReminderMessage { }
+    public interface IReminderCommand : IReminderMessage { }
+    public interface IReminderEvent : IReminderMessage { }
+
     public partial class Reminder
     {
         #region internal classes
@@ -19,7 +24,7 @@ namespace Akka.Persistence.Reminders
         /// <summary>
         /// An entry represents a single task scheduled by <see cref="Reminder"/> actor.
         /// </summary>
-        public sealed class Entry : IEquatable<Entry>
+        public sealed class Entry : IEquatable<Entry>, IReminderFormat
         {
             public string TaskId { get; }
             public ActorPath Recipient { get; }
@@ -77,7 +82,7 @@ namespace Akka.Persistence.Reminders
         /// An immutable version of a <see cref="Reminder"/> actor state, containing 
         /// information about all currently scheduled tasks waiting to be executed.
         /// </summary>
-        public sealed class State : IEquatable<State>
+        public sealed class State : IEquatable<State>, IReminderFormat
         {
             public static State Empty { get; } = new State(ImmutableDictionary<string, Entry>.Empty);
 
@@ -118,9 +123,6 @@ namespace Akka.Persistence.Reminders
             }
         }
 
-        public interface IReminderMessage { }
-        public interface IReminderCommand : IReminderMessage { }
-        public interface IReminderEvent : IReminderMessage { }
 
         /// <summary>
         /// A request send to an instance of a <see cref="Reminder"/> actor, ordering
@@ -134,7 +136,7 @@ namespace Akka.Persistence.Reminders
         /// be send back to <see cref="Schedule"/> message sender, when the task has been confirmed
         /// as correctly persisted.
         /// </summary>
-        public sealed class Schedule : IReminderCommand, IEquatable<Schedule>
+        public sealed class Schedule : IReminderCommand, IEquatable<Schedule>, IReminderFormat
         {
             public string TaskId { get; }
             public ActorPath Recipient { get; }
@@ -184,7 +186,7 @@ namespace Akka.Persistence.Reminders
             public override string ToString() => $"Schedule(id:{TaskId}, receiver:{Recipient}, at:{TriggerDateUtc}, repeat:{RepeatInterval?.ToString() ?? "no"}, message:{Message})";
         }
 
-        public sealed class Scheduled : IReminderEvent, IEquatable<Scheduled>
+        public sealed class Scheduled : IReminderEvent, IEquatable<Scheduled>, IReminderFormat
         {
             public Scheduled(Entry entry)
             {
@@ -215,7 +217,7 @@ namespace Akka.Persistence.Reminders
             public override string ToString() => $"Scheduled({Entry})";
         }
 
-        public sealed class Completed : IReminderEvent, IEquatable<Completed>
+        public sealed class Completed : IReminderEvent, IEquatable<Completed>, IReminderFormat
         {
             public string TaskId { get; }
             public DateTime TriggerDateUtc { get; }
@@ -256,7 +258,7 @@ namespace Akka.Persistence.Reminders
         /// scheduled entries. In reply an actor will send a <see cref="State"/> object back to
         /// a message sender, containing the latest known information about reminder state.
         /// </summary>
-        public sealed class GetState : IReminderCommand
+        public sealed class GetState : IReminderCommand, IReminderFormat
         {
             public static GetState Instance { get; } = new GetState();
             private GetState() { }
@@ -269,6 +271,5 @@ namespace Akka.Persistence.Reminders
         }
 
         #endregion
-
     }
 }

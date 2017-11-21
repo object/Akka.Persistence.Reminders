@@ -39,8 +39,9 @@ Since a reminder is a persistent actor, it's crucial, that only one instance of 
 system.ActorOf(ClusterSingletonManager.Props(
     singletonProps: Reminder.Props(),
     terminationMessage: PoisonPill.Instance,
-    settings: ClusterSingletonManagerSettings.Create(system).WithRole("reminder")), // use role to limit reminder actor occurrence
-    name: "consumer");
+	// use role to limit reminder actor placement only to some subset of nodes
+    settings: ClusterSingletonManagerSettings.Create(system).WithRole("reminder")), 
+    name: "reminder");
 ```
 
 ### Using reminders together with Akka.Cluster.Sharding
