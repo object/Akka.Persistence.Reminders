@@ -1,0 +1,34 @@
+﻿syntax = "proto3";
+package Akka.Persistence.Reminders.Serialization.Proto;
+
+
+message OtherMessage {
+	int32 SerializerId = 1;
+	bytes Body = 2;
+	string Manifest = 3;
+}
+
+message ReminderEntry {
+	string TaskId = 1;
+	string ActorPath = 2;
+	OtherMessage Payload = 3;
+	int64 TriggerDate = 4;
+	int64 Ticks = 5;
+}
+
+message ReminderState {
+	repeated ReminderEntry Entries = 1;
+}
+
+message ReminderSchedule {
+	ReminderEntry Entry = 1;
+}
+
+message ReminderScheduled {
+	ReminderEntry Entry = 1;
+}
+
+message ReminderCompleted {
+	string TaskId = 1;
+	int64 CompletionDate = 2;
+}
