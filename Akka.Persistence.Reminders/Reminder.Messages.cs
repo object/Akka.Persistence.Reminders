@@ -93,6 +93,9 @@ namespace Akka.Persistence.Reminders
 
             public ImmutableDictionary<string, Entry> Entries { get; }
 
+            public State AddEntry(Entry entry) => new State(Entries.Add(entry.TaskId, entry));
+            public State RemoveEntry(string taskId) => new State(Entries.Remove(taskId));
+
             public bool Equals(State other)
             {
                 if (ReferenceEquals(other, null)) return false;

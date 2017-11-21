@@ -142,10 +142,10 @@ namespace Akka.Persistence.Reminders
             switch (e)
             {
                 case Scheduled scheduled:
-                    state = new State(state.Entries.Add(scheduled.Entry.TaskId, scheduled.Entry));
+                    state = state.AddEntry(scheduled.Entry);
                     break;
                 case Completed completed:
-                    state = new State(state.Entries.Remove(completed.TaskId));
+                    state = state.RemoveEntry(completed.TaskId);
                     break;
             }
 
