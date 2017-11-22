@@ -42,7 +42,7 @@ namespace Akka.Persistence.Reminders
 
         private readonly ICancelable tickTask;
         private State state = State.Empty;
-        private int counter = 0;
+        private long counter = 0L;
         private readonly ReminderSettings settings;
 
         public Reminder() : this(ReminderSettings.Create(Context.System.Settings.Config.GetConfig("akka.persistence.reminder")))
@@ -93,6 +93,18 @@ namespace Akka.Persistence.Reminders
             Command<GetState>(_ =>
             {
                 Sender.Tell(state);
+            });
+            Command<Cancel>(cancel =>
+            {
+                var sender = Sender;
+                Emit(new Completed(cancel.TaskId, DateTime.UtcNow), e =>
+                {
+                    UpdateState(e);
+                    if (cancel.Ack != null)
+                    {
+                        sender.Tell(cancel.Ack);
+                    }
+                });
             });
             Command<SaveSnapshotSuccess>(success =>
             {

@@ -24,6 +24,7 @@ namespace Akka.Persistence.Reminders.Serialization
         public const string ScheduleManifest = "D";
         public const string ScheduledManifest = "E";
         public const string GetStateManifest = "F";
+        public const string CancelManifest = "G";
 
         public static readonly byte[] EmptyBytes = new byte[0];
 
@@ -43,9 +44,23 @@ namespace Akka.Persistence.Reminders.Serialization
                 case Reminder.Completed completed: return CompletedToProto(completed).ToByteArray();
                 case Reminder.Schedule schedule: return ScheduleToProto(schedule).ToByteArray();
                 case Reminder.Scheduled scheduled: return ScheduledToProto(scheduled).ToByteArray();
+                case Reminder.Cancel cancel: return CancelToProto(cancel).ToByteArray();
                 case Reminder.GetState getState: return EmptyBytes;
                 default: throw new ArgumentException($"'{nameof(ReminderSerializer)}' doesn't support serialization of '{obj.GetType()}'");
             }
+        }
+
+        private Proto.ReminderCancel CancelToProto(Reminder.Cancel cancel)
+        {
+            var proto = new ReminderCancel
+            {
+                TaskId = cancel.TaskId
+            };
+
+            if (cancel.Ack != null)
+                proto.Ack = MessageToProto(cancel.Ack);
+
+            return proto;
         }
 
         private Proto.ReminderScheduled ScheduledToProto(Reminder.Scheduled scheduled)
@@ -146,8 +161,15 @@ namespace Akka.Persistence.Reminders.Serialization
                 case CompletedManifest: return CompletedFromProto(Proto.ReminderCompleted.Parser.ParseFrom(bytes));
                 case ScheduledManifest: return ScheduledFromProto(Proto.ReminderScheduled.Parser.ParseFrom(bytes));
                 case GetStateManifest: return Reminder.GetState.Instance;
+                case CancelManifest: return CancelFromProto(Proto.ReminderCancel.Parser.ParseFrom(bytes));
                 default: throw new ArgumentException($"'{nameof(ReminderSerializer)}' doesn't support serialization of unknown manifest '{manifest}'");
             }
+        }
+
+        private Reminder.Cancel CancelFromProto(ReminderCancel proto)
+        {
+            var ack = proto.Ack != null ? MessageFromProto(proto.Ack) : null;
+            return new Reminder.Cancel(proto.TaskId, ack);
         }
 
         private Reminder.State StateFromProto(Proto.ReminderState proto)
@@ -214,6 +236,7 @@ namespace Akka.Persistence.Reminders.Serialization
                 case Reminder.Schedule _: return ScheduleManifest;
                 case Reminder.Scheduled _: return ScheduledManifest;
                 case Reminder.GetState _: return GetStateManifest;
+                case Reminder.Cancel _: return CancelManifest;
                 default: throw new ArgumentException($"'{nameof(ReminderSerializer)}' doesn't support serialization of '{o.GetType()}'");
             }
         }

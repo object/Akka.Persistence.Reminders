@@ -55,7 +55,7 @@ let outputBinaries = output @@ "binaries"
 let outputNuGet = output @@ "nuget"
 let outputBinariesNet45 = outputBinaries @@ "net45"
 let outputBinariesNetStandard = outputBinaries @@ "netstandard1.6"
-let slnFile = "./Akka.Persistence.sln"
+let slnFile = "./Akka.Persistence.Reminders.sln"
 
 Target "RestorePackages" (fun _ ->
     let additionalArgs = if versionSuffix.Length > 0 then [sprintf "/p:VersionSuffix=%s" versionSuffix] else []  

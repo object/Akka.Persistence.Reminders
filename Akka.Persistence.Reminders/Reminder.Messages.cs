@@ -32,9 +32,9 @@ namespace Akka.Persistence.Reminders
             public DateTime TriggerDateUtc { get; }
             public TimeSpan? RepeatInterval { get; }
 
-            public Entry(string scheduleId, ActorPath receiver, object message, DateTime triggerDateUtc, TimeSpan? repeatInterval = null)
+            public Entry(string taskId, ActorPath receiver, object message, DateTime triggerDateUtc, TimeSpan? repeatInterval = null)
             {
-                TaskId = scheduleId ?? throw new ArgumentNullException(nameof(scheduleId));
+                TaskId = taskId ?? throw new ArgumentNullException(nameof(taskId));
                 Recipient = receiver ?? throw new ArgumentNullException(nameof(receiver));
                 Message = message ?? throw new ArgumentNullException(nameof(message));
                 TriggerDateUtc = triggerDateUtc;
@@ -42,7 +42,7 @@ namespace Akka.Persistence.Reminders
             }
 
             public Entry WithNextTriggerDate(DateTime nextDate) => new Entry(
-                scheduleId: TaskId,
+                taskId: TaskId,
                 receiver: Recipient,
                 message: Message,
                 triggerDateUtc: nextDate,
@@ -148,9 +148,9 @@ namespace Akka.Persistence.Reminders
             public TimeSpan? RepeatInterval { get; }
             public object Ack { get; }
 
-            public Schedule(string scheduleId, ActorPath receiver, object message, DateTime triggerDateUtc, TimeSpan? repeatInterval = null, object ack = null)
+            public Schedule(string taskId, ActorPath receiver, object message, DateTime triggerDateUtc, TimeSpan? repeatInterval = null, object ack = null)
             {
-                TaskId = scheduleId ?? throw new ArgumentNullException(nameof(scheduleId));
+                TaskId = taskId ?? throw new ArgumentNullException(nameof(taskId));
                 Recipient = receiver ?? throw new ArgumentNullException(nameof(receiver));
                 Message = message ?? throw new ArgumentNullException(nameof(message));
                 TriggerDateUtc = triggerDateUtc;
@@ -225,9 +225,9 @@ namespace Akka.Persistence.Reminders
             public string TaskId { get; }
             public DateTime TriggerDateUtc { get; }
 
-            public Completed(string scheduleId, DateTime triggerDateUtc)
+            public Completed(string taskId, DateTime triggerDateUtc)
             {
-                TaskId = scheduleId ?? throw new ArgumentNullException(nameof(scheduleId));
+                TaskId = taskId ?? throw new ArgumentNullException(nameof(taskId));
                 TriggerDateUtc = triggerDateUtc;
             }
 
@@ -254,6 +254,46 @@ namespace Akka.Persistence.Reminders
             }
 
             public override string ToString() => $"Completed(id:{TaskId}, at:{TriggerDateUtc})";
+        }
+
+        /// <summary>
+        /// Cancels a previous <see cref="Schedule"/> identified by <see cref="TaskId"/>.
+        /// 
+        /// Optionally, if <see cref="Ack"/> has been defined it will be returned back to cancel 
+        /// sender, when cancellation has been completed.
+        /// </summary>
+        public sealed class Cancel : IReminderCommand, IEquatable<Cancel>, IReminderFormat
+        {
+            public Cancel(string taskId, object ack = null)
+            {
+                TaskId = taskId;
+                Ack = ack;
+            }
+
+            public string TaskId { get; }
+            public object Ack { get; }
+
+            public bool Equals(Cancel other)
+            {
+                if (ReferenceEquals(null, other)) return false;
+                if (ReferenceEquals(this, other)) return true;
+                return string.Equals(TaskId, other.TaskId) && Equals(Ack, other.Ack);
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                return obj is Cancel && Equals((Cancel) obj);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return ((TaskId != null ? TaskId.GetHashCode() : 0) * 397) ^ (Ack != null ? Ack.GetHashCode() : 0);
+                }
+            }
         }
 
         /// <summary>

@@ -37,3 +37,8 @@ message ReminderCompleted {
 	string TaskId = 1;
 	int64 CompletionDate = 2;
 }
+
+message ReminderCancel {
+	string TaskId = 1;
+	OtherMessage Ack = 2;
+}

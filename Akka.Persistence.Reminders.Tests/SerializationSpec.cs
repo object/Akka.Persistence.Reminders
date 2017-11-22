@@ -76,7 +76,7 @@ namespace Akka.Persistence.Reminders.Tests
         [Fact]
         public void ReminderSerializer_must_serialize_Reminder_Schedule()
         {
-            var expected = new Reminder.Schedule("task-1", TestActor.Path, new TestMessage("hello"), DateTime.UtcNow, TimeSpan.FromHours(1), "reply");
+            var expected = new Reminder.Schedule("task-1", TestActor.Path, new TestMessage("hello"), DateTime.UtcNow, ack: "reply");
             var actual = Roundtrip(expected);
 
             actual.Should().Be(expected);
@@ -85,7 +85,7 @@ namespace Akka.Persistence.Reminders.Tests
         [Fact]
         public void ReminderSerializer_must_serialize_Reminder_Scheduled()
         {
-            var expected = new Reminder.Scheduled(new Reminder.Entry("task-1", TestActor.Path, new TestMessage("hello"), DateTime.UtcNow, TimeSpan.FromHours(1)));
+            var expected = new Reminder.Scheduled(new Reminder.Entry("task-1", TestActor.Path, new TestMessage("hello"), DateTime.UtcNow));
             var actual = Roundtrip(expected);
 
             actual.Should().Be(expected);
@@ -95,6 +95,15 @@ namespace Akka.Persistence.Reminders.Tests
         public void ReminderSerializer_must_serialize_Reminder_GetState()
         {
             var expected = Reminder.GetState.Instance;
+            var actual = Roundtrip(expected);
+
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public void ReminderSerializer_must_serialize_Reminder_Cancel()
+        {
+            var expected = new Reminder.Cancel("task-id", new TestMessage("hello"));
             var actual = Roundtrip(expected);
 
             actual.Should().Be(expected);
