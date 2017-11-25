@@ -28,11 +28,12 @@ namespace Akka.Persistence.Reminders.Serialization
 
         public static readonly byte[] EmptyBytes = new byte[0];
 
-        private readonly Akka.Serialization.Serialization serialization;
-        
+        private readonly ExtendedActorSystem _system;
+        protected Akka.Serialization.Serialization Serialization => _system.Serialization;
+
         public ReminderSerializer(ExtendedActorSystem system) : base(system)
         {
-            serialization = system.Serialization;
+            _system = system;
         }
 
         public override byte[] ToBinary(object obj)
@@ -45,7 +46,7 @@ namespace Akka.Persistence.Reminders.Serialization
                 case Reminder.Schedule schedule: return ScheduleToProto(schedule).ToByteArray();
                 case Reminder.Scheduled scheduled: return ScheduledToProto(scheduled).ToByteArray();
                 case Reminder.Cancel cancel: return CancelToProto(cancel).ToByteArray();
-                case Reminder.GetState getState: return EmptyBytes;
+                case Reminder.GetState _: return EmptyBytes;
                 default: throw new ArgumentException($"'{nameof(ReminderSerializer)}' doesn't support serialization of '{obj.GetType()}'");
             }
         }
@@ -117,7 +118,7 @@ namespace Akka.Persistence.Reminders.Serialization
 
         private OtherMessage MessageToProto(object message)
         {
-            var serializer = serialization.FindSerializerFor(message);
+            var serializer = Serialization.FindSerializerFor(message);
             var proto = new OtherMessage
             {
                 SerializerId = serializer.Identifier,
@@ -213,7 +214,7 @@ namespace Akka.Persistence.Reminders.Serialization
 
         private object MessageFromProto(OtherMessage proto)
         {
-            return serialization.Deserialize(proto.Body.ToByteArray(), proto.SerializerId, proto.Manifest);
+            return Serialization.Deserialize(proto.Body.ToByteArray(), proto.SerializerId, proto.Manifest);
         }
 
         private ActorPath ActorPathFromProto(string proto)

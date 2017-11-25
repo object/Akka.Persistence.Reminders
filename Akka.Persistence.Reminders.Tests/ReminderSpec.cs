@@ -7,11 +7,15 @@
 #endregion
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using Akka.Actor;
+using Akka.Configuration;
 using Xunit;
 using Xunit.Abstractions;
+
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 
 namespace Akka.Persistence.Reminders.Tests
 {
@@ -44,10 +48,16 @@ namespace Akka.Persistence.Reminders.Tests
         private readonly IActorRef journalRef;
         private readonly IActorRef snapshotStoreRef;
 
-        private int seqNrCounter = 1;
+        private int seqNrCounter = 0;
 
-        public ReminderSpec(ITestOutputHelper output) : base(Reminder.DefaultConfig, output:output)
+        private static readonly Config TestConfig = ConfigurationFactory.ParseString(@"
+                akka.persistence.snapshot-store.local.dir = ""target/snapshots-ReminderSpec/""")
+            .WithFallback(Reminder.DefaultConfig);
+
+        public ReminderSpec(ITestOutputHelper output) : base(TestConfig, output: output)
         {
+            DeleteSnapshotFile();
+
             var settings = ReminderSettings.Default
                 .WithTickInterval(TimeSpan.FromMilliseconds(500))
                 .WithSnapshotInterval(5);
@@ -61,10 +71,17 @@ namespace Akka.Persistence.Reminders.Tests
 
         protected string Pid { get; } = ReminderSettings.Default.PersistenceId;
 
+        protected override void AfterAll()
+        {
+            base.AfterAll();
+            DeleteSnapshotFile();
+        }
+
         [Fact]
         public void Reminder_must_schedule_tasks_as_events()
         {
-            var s1 = CreateSchedule(ImmediateMsg);
+            var at = DateTime.UtcNow.AddSeconds(2);
+            var s1 = CreateSchedule(ImmediateMsg, at);
 
             reminder.Tell(s1, TestActor);
             ExpectMsg(ImmediateMsg + "-ack");
@@ -74,8 +91,9 @@ namespace Akka.Persistence.Reminders.Tests
         [Fact]
         public void Reminder_must_return_its_state_when_requested()
         {
-            var s1 = CreateSchedule("A");
-            var s2 = CreateSchedule("B");
+            var at = DateTime.UtcNow.AddSeconds(2);
+            var s1 = CreateSchedule("A", at);
+            var s2 = CreateSchedule("B", at);
 
             reminder.Tell(s1, TestActor);
             reminder.Tell(s2, TestActor);
@@ -86,8 +104,8 @@ namespace Akka.Persistence.Reminders.Tests
             reminder.Tell(Reminder.GetState.Instance, TestActor);
 
             var expected = Reminder.State.Empty
-                .AddEntry(CreateEntry("A"))
-                .AddEntry(CreateEntry("B"));
+                .AddEntry(CreateEntry("A", at))
+                .AddEntry(CreateEntry("B", at));
 
             ExpectMsg(expected);
         }
@@ -95,75 +113,84 @@ namespace Akka.Persistence.Reminders.Tests
         [Fact]
         public void Reminder_must_complete_task_after_sending_a_message()
         {
-            var s1 = CreateSchedule(ImmediateMsg);
+            var at = DateTime.UtcNow.AddSeconds(2);
+            var s1 = CreateSchedule(ImmediateMsg, at);
 
             reminder.Tell(s1, TestActor);
             ExpectMsg(ImmediateMsg + "-ack");
             ExpectMsg(ImmediateMsg);
 
+            Thread.Sleep(100); // wait a while, as task is triggered before Reminder.Completed is emitted
+
             journalRef.Tell(new ReplayMessages(0, long.MaxValue, 100, Pid, TestActor));
+            ExpectEvent(Pid, 1, new Reminder.Scheduled(CreateEntry(ImmediateMsg, at)));
+            ExpectEvent(Pid, 2, (Reminder.Completed c) => c.TaskId == s1.TaskId);
+
             ExpectMsg<RecoverySuccess>();
         }
 
         [Fact]
         public void Reminder_must_occasinally_snapshot_its_state()
         {
+            var at = DateTime.UtcNow.AddSeconds(2);
             var state = Reminder.State.Empty;
             for (int i = 0; i < 7; i++)
             {
                 var msg = "A" + i;
-                reminder.Tell(CreateSchedule(msg), TestActor);
+                reminder.Tell(CreateSchedule(msg, at), TestActor);
                 ExpectMsg(msg + "-ack");
 
-                if (i < 5) state = state.AddEntry(CreateEntry(msg));
+                if (i < 5) state = state.AddEntry(CreateEntry(msg, at));
             }
 
             // according to modified settings after 5 tries we should get a snapshot
             Thread.Sleep(500); // wait a little - snapshots are async
-            
+
             snapshotStoreRef.Tell(new LoadSnapshot(Pid, SnapshotSelectionCriteria.Latest, long.MaxValue));
-            ExpectMsg(new LoadSnapshotResult(new SelectedSnapshot(new SnapshotMetadata(Pid, 5), state), 5));
+            ExpectMsg<LoadSnapshotResult>(r => Equals(r.Snapshot.Snapshot, state) && r.Snapshot.Metadata.SequenceNr == 5);
         }
 
         [Fact]
         public void Reminder_must_recover_its_state_from_snapshots_and_events()
         {
+            var at = DateTime.UtcNow.AddSeconds(2);
+
             // write snapshot (A,B) and 2 events (Scheduled(C), Completed(B))
             // the result should be: A, C
             var expected = Reminder.State.Empty
-                .AddEntry(CreateEntry("A"))
-                .AddEntry(CreateEntry("B"));
+                .AddEntry(CreateEntry("A", at))
+                .AddEntry(CreateEntry("B", at));
 
             seqNrCounter += 2;
             WriteSnapshot(expected);
-            WriteEvents(new Reminder.Scheduled(CreateEntry("C")), new Reminder.Completed("B-task", DateTime.UtcNow));
+            WriteEvents(new Reminder.Scheduled(CreateEntry("C", at)), new Reminder.Completed("B-task", DateTime.UtcNow));
 
             reminder.Tell(Crash.Instance);
             reminder.Tell(Reminder.GetState.Instance, TestActor);
 
             ExpectMsg(Reminder.State.Empty
-                .AddEntry(CreateEntry("A"))
-                .AddEntry(CreateEntry("C")));
+                .AddEntry(CreateEntry("A", at))
+                .AddEntry(CreateEntry("C", at)));
         }
 
-        private Reminder.Schedule CreateSchedule(string msg, bool repeat = false)
+        private Reminder.Schedule CreateSchedule(string msg, DateTime when, bool repeat = false)
         {
             return new Reminder.Schedule(
                 taskId: msg + "-task",
                 receiver: TestActor.Path,
                 message: msg,
-                triggerDateUtc: DateTime.UtcNow.AddSeconds(2),
+                triggerDateUtc: when,
                 repeatInterval: repeat ? (TimeSpan?)TimeSpan.FromSeconds(1) : null,
                 ack: msg + "-ack");
         }
 
-        private Reminder.Entry CreateEntry(string msg, bool repeat = false)
+        private Reminder.Entry CreateEntry(string msg, DateTime when, bool repeat = false)
         {
             return new Reminder.Entry(
                 taskId: msg + "-task",
                 receiver: TestActor.Path,
                 message: msg,
-                triggerDateUtc: DateTime.UtcNow.AddSeconds(2),
+                triggerDateUtc: when,
                 repeatInterval: repeat ? (TimeSpan?)TimeSpan.FromSeconds(1) : null);
         }
 
@@ -171,19 +198,39 @@ namespace Akka.Persistence.Reminders.Tests
         {
             var meta = new SnapshotMetadata(Pid, seqNrCounter);
             snapshotStoreRef.Tell(new SaveSnapshot(meta, snapshot));
-            ExpectMsg(new SaveSnapshotSuccess(meta));
+            ExpectMsg<SaveSnapshotSuccess>(s => s.Metadata.PersistenceId == Pid && s.Metadata.SequenceNr == seqNrCounter);
         }
 
         private void WriteEvents(params object[] events)
         {
             var persistents = events
-                .Select(e => new Persistent(e, seqNrCounter++, Pid, e.GetType().FullName))
+                .Select(e => new Persistent(e, (++seqNrCounter), Pid, e.GetType().FullName))
                 .ToArray();
             journalRef.Tell(new WriteMessages(persistents.Select(p => new AtomicWrite(p)), TestActor, 1));
 
             ExpectMsg<WriteMessagesSuccessful>();
             foreach (var p in persistents)
                 ExpectMsg(new WriteMessageSuccess(p, 1));
+        }
+
+        private void ExpectEvent<T>(string persistenceId, int seqNr, T e) => ExpectEvent<T>(persistenceId, seqNr, evt => Equals(evt, e));
+
+        private void ExpectEvent<T>(string persistenceId, int seqNr, Func<T, bool> predicate)
+        {
+            ExpectMsg<ReplayedMessage>(r =>
+            {
+                var p = r.Persistent;
+                return p.PersistenceId == persistenceId && p.SequenceNr == seqNr && predicate((T)p.Payload);
+            });
+        }
+
+        private void DeleteSnapshotFile()
+        {
+            var location = Sys.Settings.Config.GetString("akka.persistence.snapshot-store.local.dir");
+            if (Directory.Exists(location))
+            {
+                Directory.Delete(location, true);
+            }
         }
     }
 }

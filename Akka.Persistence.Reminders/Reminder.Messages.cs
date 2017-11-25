@@ -52,7 +52,11 @@ namespace Akka.Persistence.Reminders
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return TaskId.Equals(other.TaskId) && Equals(Recipient, other.Recipient) && Equals(Message, other.Message) && TriggerDateUtc.Equals(other.TriggerDateUtc) && RepeatInterval.Equals(other.RepeatInterval);
+                return TaskId.Equals(other.TaskId) 
+                    && Equals(Recipient, other.Recipient) 
+                    && Equals(Message, other.Message) 
+                    && TriggerDateUtc.Equals(other.TriggerDateUtc) 
+                    && RepeatInterval.Equals(other.RepeatInterval);
             }
 
             public override bool Equals(object obj)
@@ -93,7 +97,7 @@ namespace Akka.Persistence.Reminders
 
             public ImmutableDictionary<string, Entry> Entries { get; }
 
-            public State AddEntry(Entry entry) => new State(Entries.Add(entry.TaskId, entry));
+            public State AddEntry(Entry entry) => new State(Entries.SetItem(entry.TaskId, entry));
             public State RemoveEntry(string taskId) => new State(Entries.Remove(taskId));
 
             public bool Equals(State other)
@@ -102,9 +106,11 @@ namespace Akka.Persistence.Reminders
                 if (ReferenceEquals(this, other)) return true;
 
                 if (Entries.Count != other.Entries.Count) return false;
-                foreach (var key in Entries.Keys)
+                foreach (var kv in Entries)
                 {
-                    if (!Equals(this.Entries[key], other.Entries[key])) return false;
+                    var thisEntry = kv.Value;
+                    if (!other.Entries.TryGetValue(kv.Key, out var otherEntry)
+                        || !Equals(thisEntry, otherEntry)) return false;
                 }
 
                 return true;

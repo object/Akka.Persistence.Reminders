@@ -47,12 +47,8 @@ namespace Akka.Persistence.Reminders.Tests
 
     public class SerializationSpec : TestKit.Xunit.TestKit
     {
-        private readonly Serializer serializer;
-
         public SerializationSpec(ITestOutputHelper output) : base(Reminder.DefaultConfig, output: output)
         {
-            serializer = Sys.Serialization.FindSerializerForType(typeof(IReminderFormat));
-            serializer.Should().BeOfType<ReminderSerializer>();
         }
 
         [Fact]
@@ -111,8 +107,9 @@ namespace Akka.Persistence.Reminders.Tests
 
         private T Roundtrip<T>(T value)
         {
+            var serializer = (ReminderSerializer)Sys.Serialization.FindSerializerFor(value);
             var binary = serializer.ToBinary(value);
-            return (T) serializer.FromBinary(binary, null);
+            return (T) serializer.FromBinary(binary, serializer.Manifest(value));
         }
     }
 }
