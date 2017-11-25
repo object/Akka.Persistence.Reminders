@@ -16,11 +16,15 @@ using (var system = ActorSystem.Create("system", config))
 	var reminder = system.ActorOf(Reminder.Props(), "reminder");
 
 	// setup a message to be send to a recipient in the future
-	var task = new Reminder.Schedule(Guid.NewGuid().ToString(), recipient.Path, "message", DateTime.UtcNow.AddDays(1));
+	var taskId = Guid.NewGuid().ToString();
+	var task = new Reminder.Schedule(taskId, recipient.Path, "message", DateTime.UtcNow.AddDays(1));
 	reminder.Tell(task);
 	
 	// get scheduled entries
 	var state = await reminder.Ask<Reminder.State>(Reminder.GetState.Instance);
+
+	// cancel previously scheduled entity - if ack was defined it will be returned to sender after completion
+	reminder.Tell(new Reminder.Cancel(taskId))
 }
 ```
 

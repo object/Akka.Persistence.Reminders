@@ -16,7 +16,7 @@ using Google.Protobuf;
 
 namespace Akka.Persistence.Reminders.Serialization
 {
-    public class ReminderSerializer : SerializerWithStringManifest
+    public sealed class ReminderSerializer : SerializerWithStringManifest
     {
         public const string StateManifest = "A";
         public const string EntryManifest = "B";
