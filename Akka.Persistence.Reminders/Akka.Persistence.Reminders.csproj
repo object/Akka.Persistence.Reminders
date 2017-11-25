@@ -1,23 +1,35 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <AssemblyTitle>Akka.Persistence.Reminders</AssemblyTitle>
+    <Description>Long running Akka.NET scheduler backed by Akka.Persistence </Description>
+    <TargetFrameworks>net45;netstandard1.6</TargetFrameworks>
+    <PackageTags>akka.net;actors;persistence;reminders;scheduler</PackageTags>
+    <Copyright>Copyright © 2017 Akka.NET Team</Copyright>
+    <Authors>Bartosz Sypytkowski</Authors>
+    <VersionPrefix>0.0.1</VersionPrefix>
+    <PackageIconUrl>http://getakka.net/images/akkalogo.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/akkadotnet/akka.net</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/akkadotnet/akka.net/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageReleaseNotes>Nuget package</PackageReleaseNotes>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>
   </PropertyGroup>
-
   <ItemGroup>
     <None Remove="reference.conf" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="reference.conf" />
   </ItemGroup>
-
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Akka.Persistence" Version="1.3.2" />
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Serialization\Proto\" />
   </ItemGroup>
-
 </Project>
