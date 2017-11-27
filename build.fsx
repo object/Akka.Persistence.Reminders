@@ -23,7 +23,7 @@ let authors = [ "Bartosz Sypytkowski" ]
 let copyright = "Copyright © 2017 Bartosz Sypytkowski"
 let company = "Bartosz Sypytkowski"
 let description = "Akka.NET message scheduler to long running tasks. Backed by Akka.Persistence."
-let tags = ["akka";"scheduler";"persistence";]
+let tags = ["akka";"scheduler";"persistence"; "reminders";]
 let configuration = "Release"
 let isUnstableDocs = hasBuildParam "unstable"
 
