@@ -63,3 +63,30 @@ var envelope = new Envelope(shardId: 1, entityId: 1, message: "hello");
 var task = new Reminder.Schedule(taskId, region.Path, envelope, DateTime.UtcNow.AddDays(1));
 reminder.Tell(task);
 ```
+
+### Configuration
+
+```hocon
+akka.persistence.reminder {
+
+	# Persistent identifier for event stream produced by correlated reminder.
+	persistence-id = "reminder"
+
+	# Identifier of a event journal used by correlated reminder.
+	journal-plugin-id = ""
+
+	# Identifer of a snapshot store used by correlated reminder.
+	snapshot-plugin-id = ""
+
+	# Unlike standard akka.net scheduler, reminders work in much lower frequency.
+	# Reason for this is that they are designed for a long running tasks (think of
+	# seconds, minutes, hours, days or weeks).
+	tick-inverval = 10s
+
+	# Reminder uses standard akka.persistence eventsourcing for maintaining scheduler
+	# internal state. In order to make a stream of events shorter (and ultimately 
+	# allowing for a faster recovery in case of failure), a reminder state snapshot is
+	# performed after a series of consecutive events have been stored.
+	snapshot-interval = 100
+}
+```
