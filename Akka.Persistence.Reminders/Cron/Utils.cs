@@ -7,173 +7,116 @@
 #endregion
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
 namespace Akka.Persistence.Reminders.Cron
 {
-    internal struct BitArray8 : IList<bool>
+    internal static class Utils
     {
-        private const int Length = 8;
-        private byte _value;
-
-        public BitArray8(byte value)
+        public static int IndexOfOrGreater(in this BitArray64 data, int value, int max = BitArray64.Length)
         {
-            _value = value;
+            while (value < max & !data[value]) value++;
+            return value;
         }
 
-        public bool this[int index]
+        public static int IndexOfOrGreater(in this BitArray32 data, int value, int max = BitArray32.Length)
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => (_value & (byte) (1 << index)) != 0;
-
-            set
-            {
-                if (value)
-                    _value |= (byte) (1 << index);
-                else
-                    _value &= (byte) (~(1 << index));
-            }
+            while (value < max & !data[value]) value++;
+            return value;
         }
 
-        public int Count => Length;
-        public bool IsReadOnly => false;
-
-        public void Insert(int index, bool item)
+        public static int IndexOfOrGreater(in this BitArray16 data, int value, int max = BitArray16.Length)
         {
-            if (index > Length)
-                throw new ArgumentOutOfRangeException($"Index '{index}' is outside of the bounds of {nameof(BitArray8)}");
-
-            this[index] = item;
+            while (value < max & !data[value]) value++;
+            return value;
         }
 
-        public int IndexOf(bool item)
+        public static int IndexOfOrGreater(in this BitArray8 data, int value, int max = BitArray8.Length)
         {
-            for (int i = 0; i < Length; i++)
-            {
-                if (this[i] == item) return i;
-            }
-
-            return -1;
+            while (value < max & !data[value]) value++;
+            return value;
         }
 
-        public IEnumerator<bool> GetEnumerator()
+        /// <summary>
+        /// An array with bitmaps representing numbers of days.
+        /// </summary>
+        public static readonly uint[] Masks31 =
         {
-            for (int i = 0; i < Length; i++)
-            {
-                yield return this[i];
-            }
-        }
+            0b_00000000_00000000_00000000_00000000,
+            0b_00000000_00000000_00000000_00000001,
+            0b_00000000_00000000_00000000_00000011,
+            0b_00000000_00000000_00000000_00000111,
+            0b_00000000_00000000_00000000_00001111,
+            0b_00000000_00000000_00000000_00011111,
+            0b_00000000_00000000_00000000_00111111,
+            0b_00000000_00000000_00000000_01111111,
+            0b_00000000_00000000_00000000_11111111,
+            0b_00000000_00000000_00000001_11111111,
+            0b_00000000_00000000_00000011_11111111,
+            0b_00000000_00000000_00000111_11111111,
+            0b_00000000_00000000_00001111_11111111,
+            0b_00000000_00000000_00011111_11111111,
+            0b_00000000_00000000_00111111_11111111,
+            0b_00000000_00000000_01111111_11111111,
+            0b_00000000_00000000_11111111_11111111,
+            0b_00000000_00000001_11111111_11111111,
+            0b_00000000_00000011_11111111_11111111,
+            0b_00000000_00000111_11111111_11111111,
+            0b_00000000_00001111_11111111_11111111,
+            0b_00000000_00011111_11111111_11111111,
+            0b_00000000_00111111_11111111_11111111,
+            0b_00000000_01111111_11111111_11111111,
+            0b_00000000_11111111_11111111_11111111,
+            0b_00000001_11111111_11111111_11111111,
+            0b_00000011_11111111_11111111_11111111,
+            0b_00000111_11111111_11111111_11111111,
+            0b_00001111_11111111_11111111_11111111,
+            0b_00011111_11111111_11111111_11111111,
+            0b_00111111_11111111_11111111_11111111,
+            0b_01111111_11111111_11111111_11111111,
+        };
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        /// <summary>
+        /// Byte mask for days from Sunday-Saturday.
+        /// </summary>
+        public const byte WorkDaysInWeek = 0b_00111110;
 
-        public void Clear() => _value = 0;
-
-        public bool Contains(bool item) => IndexOf(item) != -1;
-
-        public void CopyTo(bool[] array, int arrayIndex)
+        /// <summary>
+        /// Byte mask for work days in month, assuming standardized 31-days month.
+        /// </summary>
+        public static readonly uint[] WorkDaysInMonth =
         {
-            for (int i = 0; i < Length; i++)
-            {
-                array[arrayIndex + i] = this[i];
-            }
-        }
+            0b_0110_0111110_0111110_0111110_0111110U, // Sunday
+            0b_0111_0011111_0011111_0011111_0011111U, // Monday
+            0b_0111_1001111_1001111_1001111_1001111U, // Tuesday
+            0b_0111_1100111_1100111_1100111_1100111U, // Wednesday
+            0b_0011_1110011_1110011_1110011_1110011U, // Thursday
+            0b_0001_1111001_1111001_1111001_1111001U, // Friday
+            0b_0100_1111100_1111100_1111100_1111100U, // Saturday
+        };
 
-        public void Add(bool item)
+        /// <summary>
+        /// Mask used to represent number of days in a week.
+        /// </summary>
+        public static readonly byte[] Masks7 =
         {
-            throw new InvalidOperationException($"{nameof(BitArray8)} doesn't support add operation");
-        }
+            0b_00000000,
+            0b_00000001,
+            0b_00000011,
+            0b_00000111,
+            0b_00001111,
+            0b_00011111,
+            0b_00111111,
+            0b_01111111,
+        };
 
-        public void RemoveAt(int index)
-        {
-            throw new InvalidOperationException($"{nameof(BitArray8)} doesn't support remove operation");
-        }
+        /// <summary>
+        /// Mask used to represent number of months.
+        /// </summary>
+        public const ushort Mask12 = 0b_00001111_11111111;
 
-        public bool Remove(bool item)
-        {
-            throw new InvalidOperationException($"{nameof(BitArray8)} doesn't support remove operation");
-        }
-    }
-
-    internal struct BitArray32 : IList<bool>
-    {
-        private const int Length = 32;
-        private uint _value;
-
-        public BitArray32(uint value)
-        {
-            _value = value;
-        }
-
-        public bool this[int index]
-        {
-            get => (_value & (uint)(1 << index)) != 0;
-            set
-            {
-                if (value)
-                    _value |= (uint)(1 << index);
-                else
-                    _value &= (uint)(~(1 << index));
-            }
-        }
-
-        public int Count => Length;
-        public bool IsReadOnly => false;
-
-        public void Insert(int index, bool item)
-        {
-            if (index > Length)
-                throw new ArgumentOutOfRangeException($"Index '{index}' is outside of the bounds of {nameof(BitArray32)}");
-
-            this[index] = item;
-        }
-
-        public int IndexOf(bool item)
-        {
-            for (int i = 0; i < Length; i++)
-            {
-                if (this[i] == item) return i;
-            }
-
-            return -1;
-        }
-
-        public IEnumerator<bool> GetEnumerator()
-        {
-            for (int i = 0; i < Length; i++)
-            {
-                yield return this[i];
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public void Clear() => _value = 0;
-
-        public bool Contains(bool item) => IndexOf(item) != -1;
-
-        public void CopyTo(bool[] array, int arrayIndex)
-        {
-            for (int i = 0; i < Length; i++)
-            {
-                array[arrayIndex + i] = this[i];
-            }
-        }
-
-        public void Add(bool item)
-        {
-            throw new InvalidOperationException($"{nameof(BitArray32)} doesn't support add operation");
-        }
-
-        public void RemoveAt(int index)
-        {
-            throw new InvalidOperationException($"{nameof(BitArray32)} doesn't support remove operation");
-        }
-
-        public bool Remove(bool item)
-        {
-            throw new InvalidOperationException($"{nameof(BitArray32)} doesn't support remove operation");
-        }
+        /// <summary>
+        /// Mask used to represent number of seconds, minutes, hours.
+        /// </summary>
+        public const ulong Mask60 = 0b_00001111_11111111_11111111_11111111_11111111_11111111_11111111_11111111;
     }
 }

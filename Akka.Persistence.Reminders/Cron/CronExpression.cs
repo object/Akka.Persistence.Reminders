@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace Akka.Persistence.Reminders.Cron
@@ -28,8 +29,7 @@ namespace Akka.Persistence.Reminders.Cron
     /// └───────────────────────── second (0 - 59, optional)
     /// </code>
     /// </example>
-    [Serializable]
-    public class CronExpression : IEquatable<CronExpression>
+    public sealed class CronExpression : IEquatable<CronExpression>
     {
         private static readonly CronFieldDescriptor Second = SecondDescriptor.Default;
         private static readonly CronFieldDescriptor Minute = MinuteDescriptor.Default;
@@ -45,15 +45,15 @@ namespace Akka.Persistence.Reminders.Cron
         private readonly string _expression;
 
         // Cron expression masks
-        private readonly ArraySegment<byte> _seconds;
-        private readonly ArraySegment<byte> _minutes;
-        private readonly ArraySegment<byte> _hours;
-        private readonly ArraySegment<byte> _months;
-        private readonly BitArray32 _daysOfMonth;
-        private readonly BitArray32 _workDaysOfMonth;
-        private readonly BitArray32 _daysOfWeekSpecific;
-        private readonly BitArray8 _daysOfWeek;
-        private readonly BitArray8 _lastDaysOfWeek;
+        private readonly ulong _seconds;
+        private readonly ulong _minutes;
+        private readonly ulong _hours;
+        private readonly uint _daysOfMonth;
+        private readonly uint _workDaysOfMonth;
+        private readonly uint _daysOfWeekSpecific;
+        private readonly ushort _months;
+        private readonly byte _daysOfWeek;
+        private readonly byte _lastDaysOfWeek;
 
         #region parsing
 
@@ -82,49 +82,45 @@ namespace Akka.Persistence.Reminders.Cron
                 throw new CronParsingException($"Failed to parse cron expression '{expression}': valid expression must have 5 or 6 fields.");
             }
 
-            _seconds = Second.Values;
-            _minutes = Minute.Values;
-            _hours = Hour.Values;
-            _months = Month.Values;
-            _daysOfMonth = new BitArray32();
-            _workDaysOfMonth = new BitArray32();
-            _daysOfWeekSpecific = new BitArray32();
-            _daysOfWeek = new BitArray8();
-            _lastDaysOfWeek = new BitArray8();
+            var seconds = new BitArray64(Second.ValueMask);
+            var minutes = new BitArray64(Minute.ValueMask);
+            var hours = new BitArray64(Hour.ValueMask);
+            var months = new BitArray64(Month.ValueMask);
+            var daysOfMonth = new BitArray32();
+            var workDaysOfMonth = new BitArray32();
+            var daysOfWeekSpecific = new BitArray32();
+            var daysOfWeek = new BitArray8();
+            var lastDaysOfWeek = new BitArray8();
 
             if (fields.Length == 5)
-                _seconds = new ArraySegment<byte>(new byte[] { 0 }, 0, 1);
+                _seconds = new BitArray64();
             else
-                if (!ParseField(fields[0], Second, out _seconds)) throw new CronParsingException($"Couldn't parse 'seconds' component of cron expression: '{fields[0]}'");
+                if (!ParseField(fields[0], Second, out seconds)) throw new CronParsingException($"Couldn't parse 'seconds' component of cron expression: '{fields[0]}'");
 
-            if (!ParseField(fields[1], Minute, out _minutes)) throw new CronParsingException($"Couldn't parse 'minutes' component of cron expression: '{fields[1]}'");
-            if (!ParseField(fields[2], Hour, out _hours)) throw new CronParsingException($"Couldn't parse 'hours' component of cron expression: '{fields[2]}'");
-            if (!ParseDayOfMonth(fields[3], DayOfMonth, ref _daysOfMonth, ref _workDaysOfMonth))
+            if (!ParseField(fields[1], Minute, out minutes)) throw new CronParsingException($"Couldn't parse 'minutes' component of cron expression: '{fields[1]}'");
+            if (!ParseField(fields[2], Hour, out hours)) throw new CronParsingException($"Couldn't parse 'hours' component of cron expression: '{fields[2]}'");
+            if (!ParseDayOfMonth(fields[3], DayOfMonth, ref daysOfMonth, ref workDaysOfMonth))
                 throw new CronParsingException($"Couldn't parse 'day-of-month' component of cron expression: '{fields[3]}'");
-            if (!ParseField(fields[4], Month, out _months)) throw new CronParsingException($"Couldn't parse 'months' component of cron expression: '{fields[4]}'");
-            if (!ParseDayOfWeek(fields[5], DayOfWeek, ref _daysOfWeek, ref _lastDaysOfWeek, ref _daysOfWeekSpecific))
+            if (!ParseField(fields[4], Month, out months)) throw new CronParsingException($"Couldn't parse 'months' component of cron expression: '{fields[4]}'");
+            if (!ParseDayOfWeek(fields[5], DayOfWeek, ref daysOfWeek, ref lastDaysOfWeek, ref daysOfWeekSpecific))
                 throw new CronParsingException($"Couldn't parse 'day-of-week' component of cron expression: '{fields[5]}'");
-        }
 
-        private BitArray8 ArraySegmentToBitArray8(ref ArraySegment<byte> data)
-        {
-            var result = new BitArray8();
-            foreach (var b in data) result[b] = true;
-            return result;
-        }
-
-        private BitArray32 ArraySegmentToBitArray32(ref ArraySegment<byte> data)
-        {
-            var result = new BitArray32();
-            foreach (var b in data) result[b] = true;
-            return result;
+            _seconds = seconds;
+            _minutes = minutes;
+            _hours = hours;
+            _months = (BitArray16)months;
+            _daysOfMonth = daysOfMonth;
+            _workDaysOfMonth = workDaysOfMonth;
+            _daysOfWeekSpecific = daysOfWeekSpecific;
+            _daysOfWeek = daysOfWeek;
+            _lastDaysOfWeek = lastDaysOfWeek;
         }
 
         private bool ParseDayOfWeek(string fieldValue, CronFieldDescriptor descriptor, ref BitArray8 daysOfWeek, ref BitArray8 lastDaysOfWeek, ref BitArray32 daysOfWeekSpecific)
         {
             if (ParseField(fieldValue, descriptor, out var dow))
             {
-                daysOfWeek = ArraySegmentToBitArray8(ref dow);
+                daysOfWeek = dow;
                 return true;
             }
 
@@ -134,7 +130,7 @@ namespace Akka.Persistence.Reminders.Cron
                 fieldValue = fieldValue.Substring(0, fieldValue.Length - 1);
                 if (ParseField(fieldValue, descriptor, out dow))
                 {
-                    lastDaysOfWeek = ArraySegmentToBitArray8(ref dow);
+                    lastDaysOfWeek = dow;
                     lastDaysOfWeek[7] = true; // use last bit to mark that lastDaysOfWeek is used
                     return true;
                 }
@@ -161,7 +157,7 @@ namespace Akka.Persistence.Reminders.Cron
             {
                 if (ParseField(fieldValue.Substring(0, fieldValue.Length - 1), descriptor, out var dom))
                 {
-                    daysOfMonth = ArraySegmentToBitArray32(ref dom);
+                    daysOfMonth = dom;
                     daysOfMonth[31] = true; // mark for last day of month used
                     return true;
                 }
@@ -170,7 +166,8 @@ namespace Akka.Persistence.Reminders.Cron
             {
                 if (ParseField(fieldValue.Substring(0, fieldValue.Length - 2), descriptor, out var dom))
                 {
-                    daysOfMonth = ArraySegmentToBitArray32(ref dom);
+                    daysOfMonth = dom;
+                    daysOfMonth[31] = true; // mark for last day of month used
                     workDaysOfMonth[31] = true; // mark for last work day of month used
                     return true;
                 }
@@ -186,18 +183,18 @@ namespace Akka.Persistence.Reminders.Cron
             }
             else if (ParseField(fieldValue, descriptor, out var dom))
             {
-                daysOfMonth = ArraySegmentToBitArray32(ref dom);
+                daysOfMonth = dom;
                 return true;
             }
 
             return false;
         }
 
-        private static bool ParseField(string fieldValue, CronFieldDescriptor descriptor, out ArraySegment<byte> result)
+        private static bool ParseField(string fieldValue, CronFieldDescriptor descriptor, out BitArray64 result)
         {
             if (fieldValue == "*")
             {
-                result = descriptor.Values;
+                result = new BitArray64(descriptor.ValueMask);
                 return true;
             }
 
@@ -206,7 +203,7 @@ namespace Akka.Persistence.Reminders.Cron
             // X
             if (byte.TryParse(fieldValue, out min))
             {
-                result = new ArraySegment<byte>(CronFieldDescriptor.AllValues, min, max);
+                result = new BitArray64(descriptor.ValueMask);
                 return true;
             }
 
@@ -255,35 +252,36 @@ namespace Akka.Persistence.Reminders.Cron
             var enumerations = fieldValue.Split(segmentSplitChars);
             if (enumerations.Length > 1)
             {
-                var values = new byte[enumerations.Length];
+                var values = new BitArray64();
                 for (int i = 0; i < enumerations.Length; i++)
                 {
-                    values[i] = descriptor.Parse(enumerations[i]);
+                    var j = descriptor.Parse(enumerations[i]);
+                    values[j] = true;
                 }
-                result = new ArraySegment<byte>(values, 0, enumerations.Length);
+
+                result = values;
                 return true;
             }
             
-            result = new ArraySegment<byte>(EmptyArray, 0, 0);
+            result = new BitArray64();
             return false;
         }
 
-        private static ArraySegment<byte> BuildSteps(byte min, byte max, byte step)
+        private static BitArray64 BuildSteps(int min, int max, int step)
         {
             if (step <= 1)
             {
-                return new ArraySegment<byte>(CronFieldDescriptor.AllValues, min, max-min);
+                return new BitArray64(ulong.MaxValue).Slice(min, max-min);
             }
             else
             {
-                var list = new List<byte>();
+                var result = new BitArray64();
                 for (int i = min; i < max; i += step)
                 {
-                    list.Add(CronFieldDescriptor.AllValues[i]);
+                    result[i] = true;
                 }
 
-                var values = list.ToArray();
-                return new ArraySegment<byte>(values, 0, values.Length);
+                return result;
             }
         }
 
@@ -331,34 +329,96 @@ namespace Akka.Persistence.Reminders.Cron
             throw new NotImplementedException();
         }
 
-        private DateTime NextSecond(DateTime previous)
+        private DateTime NextSecond(DateTime d)
+        {
+            var field = new BitArray64(_seconds);
+            var second = field.IndexOfOrGreater(d.Second + 1, 60);
+            if (second == 60)
+                return NextMinute(d);
+            else
+                return new DateTime(d.Year, d.Month, d.Day, d.Hour, d.Minute, second, 0);
+        }
+
+        private DateTime NextMinute(DateTime d)
+        {
+            var field = new BitArray64(_minutes);
+            var minute = field.IndexOfOrGreater(d.Minute + 1, 60);
+            if (minute == 60)
+                return NextHour(d);
+            else
+                return new DateTime(d.Year, d.Month, d.Day, d.Hour, minute, d.Second, 0);
+        }
+
+        private DateTime NextHour(DateTime d)
+        {
+            var field = new BitArray64(_hours);
+            var hour = field.IndexOfOrGreater(d.Hour + 1, 60);
+            if (hour == 60)
+                return NextDayOfMonth(d);
+            else
+                return new DateTime(d.Year, d.Month, d.Day, hour, d.Minute, d.Second, 0);
+        }
+
+        private DateTime NextDayOfMonth(DateTime d)
+        {
+            var field = ActiveDaysOfMonth(d);
+        }
+
+        private DateTime NextMonth(DateTime d)
         {
             throw new NotImplementedException();
         }
 
-        private DateTime NextMinute(DateTime previous)
+        private DateTime NextDayOfWeek(DateTime d)
         {
             throw new NotImplementedException();
         }
 
-        private DateTime NextHour(DateTime previous)
+        private BitArray32 ActiveDaysOfMonth(DateTime d)
         {
-            throw new NotImplementedException();
+            var firstDayOfMonth = new DateTime(d.Year, d.Month, 1);
+            var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddSeconds(-1);
+
+            var result = Utils.Masks31[lastDayOfMonth.Day - 1];
+
+            // daysOfMonth == "*"
+            if (_daysOfMonth == 0U && _workDaysOfMonth == 0U)
+            {
+                return new BitArray32(result);
+            }
+            else
+            {
+                if (LastDayOfMonth)
+                {
+                }
+                else if (WorkDaysOfMonth)
+                {
+                    result = (result & Utils.WorkDaysInMonth[(int)firstDayOfMonth.DayOfWeek]);
+                    return new BitArray32(result);
+                }
+            }
         }
 
-        private DateTime NextDayOfMonth(DateTime previous)
+        public bool WorkDaysOfMonth
         {
-            throw new NotImplementedException();
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => (_workDaysOfMonth & 0b_10000000_00000000_00000000_00000000U) != 0U;
         }
 
-        private DateTime NextMonth(DateTime previous)
+        public bool LastDayOfMonth
         {
-            throw new NotImplementedException();
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => (_daysOfMonth & 0b_10000000_00000000_00000000_00000000U) != 0U;
         }
 
-        private DateTime NextDayOfWeek(DateTime previous)
+        private DateTime WorkDayOfMonth(DateTime d)
         {
-            throw new NotImplementedException();
+            switch (d.DayOfWeek)
+            {
+                case System.DayOfWeek.Sunday: return d.AddDays(1);
+                case System.DayOfWeek.Saturday: return d.AddDays(2);
+                default: return d;
+            }
         }
 
         #endregion
