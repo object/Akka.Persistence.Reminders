@@ -10,6 +10,7 @@ using System;
 using System.Collections.Immutable;
 using Akka.Persistence.Reminders.Serialization;
 using Akka.Serialization;
+using Cronos;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
@@ -43,6 +44,8 @@ namespace Akka.Persistence.Reminders.Tests
         {
             return (Content != null ? Content.GetHashCode() : 0);
         }
+
+        public override string ToString() => Content;
     }
 
     public class SerializationSpec : TestKit.Xunit.TestKit
@@ -54,7 +57,10 @@ namespace Akka.Persistence.Reminders.Tests
         [Fact]
         public void ReminderSerializer_must_serialize_Reminder_State()
         {
-            var expected = Reminder.State.Empty.AddEntry(new Reminder.Entry("task-1", TestActor.Path, new TestMessage("hello"), DateTime.UtcNow, TimeSpan.FromHours(1)));
+            var expected = Reminder.State.Empty
+                .AddEntry(new Reminder.Schedule("task-1", TestActor.Path, new TestMessage("hello1"), DateTime.UtcNow))
+                .AddEntry(new Reminder.ScheduleRepeatedly("task-2", TestActor.Path, new TestMessage("hello2"), DateTime.UtcNow, TimeSpan.FromHours(1)))
+                .AddEntry(new Reminder.ScheduleCron("task-3", TestActor.Path, new TestMessage("hello3"), DateTime.UtcNow, "0 0 * * MON-FRI"));
             var actual = Roundtrip(expected);
 
             actual.Should().Be(expected);
@@ -79,9 +85,27 @@ namespace Akka.Persistence.Reminders.Tests
         }
 
         [Fact]
+        public void ReminderSerializer_must_serialize_Reminder_ScheduleRepeatedly()
+        {
+            var expected = new Reminder.ScheduleRepeatedly("task-1", TestActor.Path, new TestMessage("hello"), DateTime.UtcNow, TimeSpan.FromMinutes(5), ack: "reply");
+            var actual = Roundtrip(expected);
+
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
+        public void ReminderSerializer_must_serialize_Reminder_ScheduleCron()
+        {
+            var expected = new Reminder.ScheduleCron("task-1", TestActor.Path, new TestMessage("hello"), DateTime.UtcNow, "*/5 * * * *", ack: "reply");
+            var actual = Roundtrip(expected);
+
+            actual.Should().Be(expected);
+        }
+
+        [Fact]
         public void ReminderSerializer_must_serialize_Reminder_Scheduled()
         {
-            var expected = new Reminder.Scheduled(new Reminder.Entry("task-1", TestActor.Path, new TestMessage("hello"), DateTime.UtcNow));
+            var expected = new Reminder.Scheduled(new Reminder.Schedule("task-1", TestActor.Path, new TestMessage("hello"), DateTime.UtcNow));
             var actual = Roundtrip(expected);
 
             actual.Should().Be(expected);

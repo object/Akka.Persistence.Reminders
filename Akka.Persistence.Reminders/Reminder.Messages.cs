@@ -8,7 +8,9 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using Akka.Actor;
+using Cronos;
 
 namespace Akka.Persistence.Reminders
 {
@@ -20,84 +22,23 @@ namespace Akka.Persistence.Reminders
     public partial class Reminder
     {
         #region internal classes
-
-        /// <summary>
-        /// An entry represents a single task scheduled by <see cref="Reminder"/> actor.
-        /// </summary>
-        public sealed class Entry : IEquatable<Entry>, IReminderFormat
-        {
-            public string TaskId { get; }
-            public ActorPath Recipient { get; }
-            public object Message { get; }
-            public DateTime TriggerDateUtc { get; }
-            public TimeSpan? RepeatInterval { get; }
-
-            public Entry(string taskId, ActorPath receiver, object message, DateTime triggerDateUtc, TimeSpan? repeatInterval = null)
-            {
-                TaskId = taskId ?? throw new ArgumentNullException(nameof(taskId));
-                Recipient = receiver ?? throw new ArgumentNullException(nameof(receiver));
-                Message = message ?? throw new ArgumentNullException(nameof(message));
-                TriggerDateUtc = triggerDateUtc;
-                RepeatInterval = repeatInterval;
-            }
-
-            public Entry WithNextTriggerDate(DateTime nextDate) => new Entry(
-                taskId: TaskId,
-                receiver: Recipient,
-                message: Message,
-                triggerDateUtc: nextDate,
-                repeatInterval: RepeatInterval);
-
-            public bool Equals(Entry other)
-            {
-                if (ReferenceEquals(null, other)) return false;
-                if (ReferenceEquals(this, other)) return true;
-                return TaskId.Equals(other.TaskId) 
-                    && Equals(Recipient, other.Recipient) 
-                    && Equals(Message, other.Message) 
-                    && TriggerDateUtc.Equals(other.TriggerDateUtc) 
-                    && RepeatInterval.Equals(other.RepeatInterval);
-            }
-
-            public override bool Equals(object obj)
-            {
-                if (ReferenceEquals(null, obj)) return false;
-                if (ReferenceEquals(this, obj)) return true;
-                return obj is Entry && Equals((Entry)obj);
-            }
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    var hashCode = TaskId.GetHashCode();
-                    hashCode = (hashCode * 397) ^ Recipient.GetHashCode();
-                    hashCode = (hashCode * 397) ^ Message.GetHashCode();
-                    hashCode = (hashCode * 397) ^ TriggerDateUtc.GetHashCode();
-                    hashCode = (hashCode * 397) ^ RepeatInterval.GetHashCode();
-                    return hashCode;
-                }
-            }
-
-            public override string ToString() => $"Entry(id:{TaskId}, receiver:{Recipient}, at:{TriggerDateUtc}, repeat:{RepeatInterval?.ToString() ?? "no"}, message:{Message})";
-        }
-
+        
         /// <summary>
         /// An immutable version of a <see cref="Reminder"/> actor state, containing 
         /// information about all currently scheduled tasks waiting to be executed.
         /// </summary>
         public sealed class State : IEquatable<State>, IReminderFormat
         {
-            public static State Empty { get; } = new State(ImmutableDictionary<string, Entry>.Empty);
+            public static State Empty { get; } = new State(ImmutableDictionary<string, Schedule>.Empty);
 
-            public State(ImmutableDictionary<string, Entry> entries)
+            public State(ImmutableDictionary<string, Schedule> entries)
             {
                 Entries = entries;
             }
 
-            public ImmutableDictionary<string, Entry> Entries { get; }
+            public ImmutableDictionary<string, Schedule> Entries { get; }
 
-            public State AddEntry(Entry entry) => new State(Entries.SetItem(entry.TaskId, entry));
+            public State AddEntry(Schedule entry) => new State(Entries.SetItem(entry.TaskId, entry));
             public State RemoveEntry(string taskId) => new State(Entries.Remove(taskId));
 
             public bool Equals(State other)
@@ -138,37 +79,41 @@ namespace Akka.Persistence.Reminders
         /// it to schedule a <see cref="Message"/> to be send to a provided <see cref="Recipient"/>
         /// at time of <see cref="TriggerDateUtc"/>.
         /// 
-        /// Optionally a <see cref="RepeatInterval"/> may be provided if this message should be 
-        /// resend in repeating time window from a given <see cref="TriggerDateUtc"/>.
-        /// 
-        /// Optinally user may specify <see cref="Ack"/>nowledgement which, when defined, will
+        /// Optionally user may specify <see cref="Ack"/> which, when defined, will
         /// be send back to <see cref="Schedule"/> message sender, when the task has been confirmed
         /// as correctly persisted.
+        ///
+        /// Other scheduling options include <see cref="ScheduleRepeatedly"/> and <see cref="ScheduleCron"/>.
         /// </summary>
-        public sealed class Schedule : IReminderCommand, IEquatable<Schedule>, IReminderFormat
+        /// <seealso cref="ScheduleRepeatedly"/>
+        /// <seealso cref="ScheduleCron"/>
+        public class Schedule : IReminderCommand, IEquatable<Schedule>, IReminderFormat
         {
             public string TaskId { get; }
             public ActorPath Recipient { get; }
             public object Message { get; }
             public DateTime TriggerDateUtc { get; }
-            public TimeSpan? RepeatInterval { get; }
             public object Ack { get; }
 
-            public Schedule(string taskId, ActorPath receiver, object message, DateTime triggerDateUtc, TimeSpan? repeatInterval = null, object ack = null)
+            public Schedule(string taskId, ActorPath recipient, object message, DateTime triggerDateUtc, object ack = null)
             {
                 TaskId = taskId ?? throw new ArgumentNullException(nameof(taskId));
-                Recipient = receiver ?? throw new ArgumentNullException(nameof(receiver));
+                Recipient = recipient ?? throw new ArgumentNullException(nameof(recipient));
                 Message = message ?? throw new ArgumentNullException(nameof(message));
                 TriggerDateUtc = triggerDateUtc;
                 Ack = ack;
-                RepeatInterval = repeatInterval;
             }
+
+            public virtual Schedule WithNextTriggerDate(DateTime utcDate) => null;
+
+            public virtual Schedule WithoutAck() => new Schedule(TaskId, Recipient, Message, TriggerDateUtc);
 
             public bool Equals(Schedule other)
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return string.Equals(TaskId, other.TaskId) && Equals(Recipient, other.Recipient) && Equals(Message, other.Message) && TriggerDateUtc.Equals(other.TriggerDateUtc) && RepeatInterval.Equals(other.RepeatInterval) && Equals(Ack, other.Ack);
+                if (this.GetType() != other.GetType()) return false;
+                return string.Equals(TaskId, other.TaskId) && Equals(Recipient, other.Recipient) && Equals(Message, other.Message) && TriggerDateUtc.Equals(other.TriggerDateUtc) && Equals(Ack, other.Ack);
             }
 
             public override bool Equals(object obj)
@@ -186,23 +131,170 @@ namespace Akka.Persistence.Reminders
                     hashCode = (hashCode * 397) ^ Recipient.GetHashCode();
                     hashCode = (hashCode * 397) ^ Message.GetHashCode();
                     hashCode = (hashCode * 397) ^ TriggerDateUtc.GetHashCode();
-                    hashCode = (hashCode * 397) ^ RepeatInterval.GetHashCode();
                     hashCode = (hashCode * 397) ^ (Ack != null ? Ack.GetHashCode() : 0);
                     return hashCode;
                 }
             }
 
-            public override string ToString() => $"Schedule(id:{TaskId}, receiver:{Recipient}, at:{TriggerDateUtc}, repeat:{RepeatInterval?.ToString() ?? "no"}, message:{Message})";
+            public override string ToString() => $"Schedule(id:'{TaskId}', receiver:{Recipient}, at:{TriggerDateUtc}, message:{Message})";
+        }
+        
+        /// <summary>
+        /// A request send to an instance of a <see cref="Reminder"/> actor, ordering
+        /// it to schedule a <see cref="Schedule.Message"/> to be send to a provided <see cref="Schedule.Recipient"/>
+        /// at time of <see cref="Schedule.TriggerDateUtc"/>.
+        /// 
+        /// A <see cref="RepeatInterval"/> may be provided if this message should be 
+        /// resend in repeating time window from a given <see cref="Schedule.TriggerDateUtc"/>.
+        /// 
+        /// Optionally user may specify <see cref="Schedule.Ack"/> which, when defined, will
+        /// be send back to <see cref="Schedule"/> message sender, when the task has been confirmed
+        /// as correctly persisted.
+        /// </summary>
+        /// <seealso cref="Schedule"/>
+        /// <seealso cref="ScheduleCron"/>
+        public sealed class ScheduleRepeatedly : Schedule, IEquatable<ScheduleRepeatedly>
+        {
+            public TimeSpan RepeatInterval { get; }
+
+            public ScheduleRepeatedly(string taskId, ActorPath recipient, object message, DateTime triggerDateUtc, TimeSpan repeatInterval, object ack = null)
+                : base(taskId, recipient, message, triggerDateUtc, ack)
+            {
+                RepeatInterval = repeatInterval;
+            }
+            
+            public override Schedule WithNextTriggerDate(DateTime utcDate) => new ScheduleRepeatedly(TaskId, Recipient, Message, utcDate + RepeatInterval, RepeatInterval);
+
+            public override Schedule WithoutAck() => new ScheduleRepeatedly(TaskId, Recipient, Message, TriggerDateUtc, RepeatInterval);
+
+            public bool Equals(ScheduleRepeatedly other)
+            {
+                if (ReferenceEquals(null, other)) return false;
+                if (ReferenceEquals(this, other)) return true;
+
+                return string.Equals(TaskId, other.TaskId) 
+                       && Equals(Recipient, other.Recipient) 
+                       && Equals(Message, other.Message) 
+                       && TriggerDateUtc.Equals(other.TriggerDateUtc) 
+                       && Equals(Ack, other.Ack)
+                       && RepeatInterval == other.RepeatInterval;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                return obj is ScheduleRepeatedly && Equals((ScheduleRepeatedly)obj);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    var hashCode = TaskId.GetHashCode();
+                    hashCode = (hashCode * 397) ^ Recipient.GetHashCode();
+                    hashCode = (hashCode * 397) ^ Message.GetHashCode();
+                    hashCode = (hashCode * 397) ^ TriggerDateUtc.GetHashCode();
+                    hashCode = (hashCode * 397) ^ (Ack != null ? Ack.GetHashCode() : 0);
+                    hashCode = (hashCode * 397) ^ RepeatInterval.GetHashCode();
+                    return hashCode;
+                }
+            }
+
+
+            public override string ToString() => $"Schedule(id:'{TaskId}', receiver:{Recipient}, at:{TriggerDateUtc}, every: {RepeatInterval}, message:{Message})";
+        }
+
+        /// <summary>
+        /// A request send to an instance of a <see cref="Reminder"/> actor, ordering
+        /// it to schedule a <see cref="Schedule.Message"/> to be send to a provided <see cref="Schedule.Recipient"/>
+        /// at time of <see cref="Schedule.TriggerDateUtc"/>.
+        /// 
+        /// A <see cref="CronExpression"/> may be provided if this message should be 
+        /// resend using a rule set specified by cron expression (see: https://en.wikipedia.org/wiki/Cron).
+        /// 
+        /// Optionally user may specify <see cref="Schedule.Ack"/> which, when defined, will
+        /// be send back to <see cref="Schedule"/> message sender, when the task has been confirmed
+        /// as correctly persisted.
+        /// </summary>
+        /// <seealso cref="Schedule"/>
+        /// <seealso cref="ScheduleRepeatedly"/>
+        public sealed class ScheduleCron : Schedule, IEquatable<ScheduleCron>
+        {
+            public string CronExpression { get; }
+
+            private readonly CronExpression Expression;
+
+            private ScheduleCron(string taskId, ActorPath recipient, object message, DateTime triggerDateUtc, string cronExpression, CronExpression expr, object ack = null)
+                : base(taskId, recipient, message, triggerDateUtc, ack)
+            {
+                // we still need to keep this thing around, see: https://github.com/HangfireIO/Cronos/issues/15
+                CronExpression = cronExpression;
+                Expression = Cronos.CronExpression.Parse(cronExpression);
+            }
+
+            public ScheduleCron(string taskId, ActorPath recipient, object message, DateTime triggerDateUtc, string cronExpression, object ack = null)
+                : this(taskId, recipient, message, triggerDateUtc, cronExpression, Cronos.CronExpression.Parse(cronExpression), ack)
+            {
+            }
+
+            public override Schedule WithNextTriggerDate(DateTime utcDate)
+            {
+                var next = Expression.GetNextOccurrence(utcDate);
+                if (next.HasValue)
+                    return new ScheduleCron(TaskId, Recipient, Message, next.Value, CronExpression, Expression);
+                else
+                    return null;
+            }
+
+            public override Schedule WithoutAck() => new ScheduleCron(TaskId, Recipient, Message, TriggerDateUtc, CronExpression, Expression);
+
+            public bool Equals(ScheduleCron other)
+            {
+                if (ReferenceEquals(null, other)) return false;
+                if (ReferenceEquals(this, other)) return true;
+
+                return string.Equals(TaskId, other.TaskId)
+                       && Equals(Recipient, other.Recipient)
+                       && Equals(Message, other.Message)
+                       && TriggerDateUtc.Equals(other.TriggerDateUtc)
+                       && Equals(Ack, other.Ack)
+                       && CronExpression == other.CronExpression;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                return obj is ScheduleCron && Equals((ScheduleCron)obj);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    var hashCode = TaskId.GetHashCode();
+                    hashCode = (hashCode * 397) ^ Recipient.GetHashCode();
+                    hashCode = (hashCode * 397) ^ Message.GetHashCode();
+                    hashCode = (hashCode * 397) ^ TriggerDateUtc.GetHashCode();
+                    hashCode = (hashCode * 397) ^ (Ack != null ? Ack.GetHashCode() : 0);
+                    hashCode = (hashCode * 397) ^ Expression.GetHashCode();
+                    return hashCode;
+                }
+            }
+
+
+            public override string ToString() => $"Schedule(id:'{TaskId}', receiver:{Recipient}, at:{TriggerDateUtc}, cron: '{CronExpression}', message:{Message})";
         }
 
         public sealed class Scheduled : IReminderEvent, IEquatable<Scheduled>, IReminderFormat
         {
-            public Scheduled(Entry entry)
+            public Scheduled(Schedule entry)
             {
                 Entry = entry;
             }
 
-            public Entry Entry { get; }
+            public Schedule Entry { get; }
 
             public bool Equals(Scheduled other)
             {
@@ -300,6 +392,8 @@ namespace Akka.Persistence.Reminders
                     return ((TaskId != null ? TaskId.GetHashCode() : 0) * 397) ^ (Ack != null ? Ack.GetHashCode() : 0);
                 }
             }
+
+            public override string ToString() => $"Cancel(taskId: {TaskId})";
         }
 
         /// <summary>

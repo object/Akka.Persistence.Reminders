@@ -21,6 +21,13 @@ namespace Akka.Persistence.Reminders.Tests
 {
     public class ReminderSpec : TestKit.Xunit.TestKit
     {
+        public enum ScheduleType
+        {
+            Once,
+            Repeat,
+            Cron
+        }
+
         public sealed class Crash
         {
             public static readonly Crash Instance = new Crash();
@@ -34,12 +41,12 @@ namespace Akka.Persistence.Reminders.Tests
                 Command<Crash>(_ => throw new Exception("BOOM!"));
             }
 
-            protected override bool ShouldTrigger(Entry entry, DateTime now)
+            protected override bool ShouldTrigger(Schedule schedule, DateTime now)
             {
-                if (entry.Message.ToString() == ImmediateMsg)
+                if (schedule.Message.ToString() == ImmediateMsg)
                     return true;
 
-                return base.ShouldTrigger(entry, now);
+                return base.ShouldTrigger(schedule, now);
             }
         }
 
@@ -104,8 +111,8 @@ namespace Akka.Persistence.Reminders.Tests
             reminder.Tell(Reminder.GetState.Instance, TestActor);
 
             var expected = Reminder.State.Empty
-                .AddEntry(CreateEntry("A", at))
-                .AddEntry(CreateEntry("B", at));
+                .AddEntry(CreateSchedule("A", at, withAck: false))
+                .AddEntry(CreateSchedule("B", at, withAck: false));
 
             ExpectMsg(expected);
         }
@@ -123,14 +130,14 @@ namespace Akka.Persistence.Reminders.Tests
             Thread.Sleep(100); // wait a while, as task is triggered before Reminder.Completed is emitted
 
             journalRef.Tell(new ReplayMessages(0, long.MaxValue, 100, Pid, TestActor));
-            ExpectEvent(Pid, 1, new Reminder.Scheduled(CreateEntry(ImmediateMsg, at)));
+            ExpectEvent(Pid, 1, new Reminder.Scheduled(CreateSchedule(ImmediateMsg, at, withAck: false)));
             ExpectEvent(Pid, 2, (Reminder.Completed c) => c.TaskId == s1.TaskId);
 
             ExpectMsg<RecoverySuccess>();
         }
 
         [Fact]
-        public void Reminder_must_occasinally_snapshot_its_state()
+        public void Reminder_must_occasionally_snapshot_its_state()
         {
             var at = DateTime.UtcNow.AddSeconds(2);
             var state = Reminder.State.Empty;
@@ -140,7 +147,7 @@ namespace Akka.Persistence.Reminders.Tests
                 reminder.Tell(CreateSchedule(msg, at), TestActor);
                 ExpectMsg(msg + "-ack");
 
-                if (i < 5) state = state.AddEntry(CreateEntry(msg, at));
+                if (i < 5) state = state.AddEntry(CreateSchedule(msg, at, withAck: false));
             }
 
             // according to modified settings after 5 tries we should get a snapshot
@@ -158,42 +165,53 @@ namespace Akka.Persistence.Reminders.Tests
             // write snapshot (A,B) and 2 events (Scheduled(C), Completed(B))
             // the result should be: A, C
             var expected = Reminder.State.Empty
-                .AddEntry(CreateEntry("A", at))
-                .AddEntry(CreateEntry("B", at));
+                .AddEntry(CreateSchedule("A", at, withAck: false))
+                .AddEntry(CreateSchedule("B", at, withAck: false));
 
             seqNrCounter += 2;
             WriteSnapshot(expected);
-            WriteEvents(new Reminder.Scheduled(CreateEntry("C", at)), new Reminder.Completed("B-task", DateTime.UtcNow));
+            WriteEvents(new Reminder.Scheduled(CreateSchedule("C", at, withAck: false)), new Reminder.Completed("B-task", DateTime.UtcNow));
 
             reminder.Tell(Crash.Instance);
             reminder.Tell(Reminder.GetState.Instance, TestActor);
 
             ExpectMsg(Reminder.State.Empty
-                .AddEntry(CreateEntry("A", at))
-                .AddEntry(CreateEntry("C", at)));
+                .AddEntry(CreateSchedule("A", at, withAck: false))
+                .AddEntry(CreateSchedule("C", at, withAck: false)));
         }
 
-        private Reminder.Schedule CreateSchedule(string msg, DateTime when, bool repeat = false)
+        private Reminder.Schedule CreateSchedule(string msg, DateTime when, ScheduleType type = ScheduleType.Once, bool withAck = true)
         {
-            return new Reminder.Schedule(
-                taskId: msg + "-task",
-                receiver: TestActor.Path,
-                message: msg,
-                triggerDateUtc: when,
-                repeatInterval: repeat ? (TimeSpan?)TimeSpan.FromSeconds(1) : null,
-                ack: msg + "-ack");
+            switch (type)
+            {
+                case ScheduleType.Once:
+                    return new Reminder.Schedule(
+                        taskId: msg + "-task",
+                        recipient: TestActor.Path,
+                        message: msg,
+                        triggerDateUtc: when,
+                        ack: withAck ? msg + "-ack" : null);
+                case ScheduleType.Repeat:
+                    return new Reminder.ScheduleRepeatedly(
+                        taskId: msg + "-task",
+                        recipient: TestActor.Path,
+                        message: msg,
+                        triggerDateUtc: when,
+                        repeatInterval: TimeSpan.FromSeconds(1),
+                        ack: withAck ? msg + "-ack" : null);
+                case ScheduleType.Cron:
+                    return new Reminder.ScheduleCron(
+                        taskId: msg + "-task",
+                        recipient: TestActor.Path,
+                        message: msg,
+                        triggerDateUtc: when,
+                        cronExpression: "0 12 * * *",
+                        ack: withAck ? msg + "-ack" : null);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
         }
-
-        private Reminder.Entry CreateEntry(string msg, DateTime when, bool repeat = false)
-        {
-            return new Reminder.Entry(
-                taskId: msg + "-task",
-                receiver: TestActor.Path,
-                message: msg,
-                triggerDateUtc: when,
-                repeatInterval: repeat ? (TimeSpan?)TimeSpan.FromSeconds(1) : null);
-        }
-
+        
         private void WriteSnapshot(object snapshot)
         {
             var meta = new SnapshotMetadata(Pid, seqNrCounter);

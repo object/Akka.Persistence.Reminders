@@ -12,6 +12,7 @@ using Akka.Actor;
 using Akka.Persistence.Reminders.Serialization.Proto;
 using Akka.Serialization;
 using Akka.Util;
+using Cronos;
 using Google.Protobuf;
 
 namespace Akka.Persistence.Reminders.Serialization
@@ -41,7 +42,6 @@ namespace Akka.Persistence.Reminders.Serialization
             switch (obj)
             {
                 case Reminder.State state: return StateToProto(state).ToByteArray();
-                case Reminder.Entry entry: return EntryToProto(entry).ToByteArray();
                 case Reminder.Completed completed: return CompletedToProto(completed).ToByteArray();
                 case Reminder.Schedule schedule: return ScheduleToProto(schedule).ToByteArray();
                 case Reminder.Scheduled scheduled: return ScheduledToProto(scheduled).ToByteArray();
@@ -82,8 +82,15 @@ namespace Akka.Persistence.Reminders.Serialization
                 TriggerDate = schedule.TriggerDateUtc.Ticks
             };
 
-            if (schedule.RepeatInterval.HasValue)
-                proto.RepeatInterval = schedule.RepeatInterval.Value.Ticks;
+            switch (schedule)
+            {
+                case Reminder.ScheduleRepeatedly repeat:
+                    proto.RepeatInterval = repeat.RepeatInterval.Ticks;
+                    break;
+                case Reminder.ScheduleCron cron:
+                    proto.CronExpression = cron.CronExpression.ToString();
+                    break;
+            }
 
             if (schedule.Ack != null)
                 proto.Ack = MessageToProto(schedule.Ack);
@@ -100,19 +107,26 @@ namespace Akka.Persistence.Reminders.Serialization
             };
         }
 
-        private Proto.ReminderEntry EntryToProto(Reminder.Entry entry)
+        [Obsolete("Entries have been fully replaced by Schedule. This is only for compatibility reasons.")]
+        private Proto.ReminderEntry EntryToProto(Reminder.Schedule schedule)
         {
             var proto = new Proto.ReminderEntry
             {
-                TaskId = entry.TaskId,
-                Recipient = ActorPathToProto(entry.Recipient),
-                Payload = MessageToProto(entry.Message),
-                TriggerDate = entry.TriggerDateUtc.Ticks
+                TaskId = schedule.TaskId,
+                Recipient = ActorPathToProto(schedule.Recipient),
+                Payload = MessageToProto(schedule.Message),
+                TriggerDate = schedule.TriggerDateUtc.Ticks
             };
 
-            if (entry.RepeatInterval.HasValue)
-                proto.RepeatInterval = entry.RepeatInterval.Value.Ticks;
-
+            switch (schedule)
+            {
+                case Reminder.ScheduleRepeatedly repeat:
+                    proto.RepeatInterval = repeat.RepeatInterval.Ticks;
+                    break;
+                case Reminder.ScheduleCron cron:
+                    proto.CronExpression = cron.CronExpression;
+                    break;
+            }
             return proto;
         }
 
@@ -145,9 +159,9 @@ namespace Akka.Persistence.Reminders.Serialization
         private Proto.ReminderState StateToProto(Reminder.State state)
         {
             var proto = new Proto.ReminderState();
-            foreach (var entry in state.Entries.Values)
+            foreach (var schedule in state.Entries.Values)
             {
-                proto.Entries.Add(EntryToProto(entry));
+                proto.Entries.Add(EntryToProto(schedule));
             }
             return proto;
         }
@@ -175,7 +189,7 @@ namespace Akka.Persistence.Reminders.Serialization
 
         private Reminder.State StateFromProto(Proto.ReminderState proto)
         {
-            var builder = ImmutableDictionary<string, Reminder.Entry>.Empty.ToBuilder();
+            var builder = ImmutableDictionary<string, Reminder.Schedule>.Empty.ToBuilder();
             foreach (var protoEntry in proto.Entries)
             {
                 var taskId = protoEntry.TaskId;
@@ -185,13 +199,25 @@ namespace Akka.Persistence.Reminders.Serialization
             return new Reminder.State(builder.ToImmutable());
         }
 
-        private Reminder.Entry EntryFromProto(ReminderEntry proto)
+        [Obsolete("Entries have been fully replaced by Schedule. This is only for compatibility reasons.")]
+        private Reminder.Schedule EntryFromProto(ReminderEntry proto)
         {
-            var repeatInterval = proto.RepeatInterval != 0
-                ? (TimeSpan?)new TimeSpan(proto.RepeatInterval)
-                : null;
+            var recipient = ActorPathFromProto(proto.Recipient);
+            var message = MessageFromProto(proto.Payload);
 
-            return new Reminder.Entry(proto.TaskId, ActorPathFromProto(proto.Recipient), MessageFromProto(proto.Payload), new DateTime(proto.TriggerDate), repeatInterval);
+            if (!string.IsNullOrEmpty(proto.CronExpression))
+            {
+                return new Reminder.ScheduleCron(proto.TaskId, recipient, message, new DateTime(proto.TriggerDate), proto.CronExpression);
+            }
+            else if (proto.RepeatInterval != default)
+            {
+                var repeat = new TimeSpan(proto.RepeatInterval);
+                return new Reminder.ScheduleRepeatedly(proto.TaskId, recipient, message, new DateTime(proto.TriggerDate), repeat);
+            }
+            else
+            {
+                return new Reminder.Schedule(proto.TaskId, recipient, message, new DateTime(proto.TriggerDate));
+            }
         }
 
         private Reminder.Completed CompletedFromProto(ReminderCompleted proto)
@@ -201,15 +227,25 @@ namespace Akka.Persistence.Reminders.Serialization
 
         private Reminder.Schedule ScheduleFromProto(ReminderSchedule proto)
         {
-            var repeatInterval = proto.RepeatInterval != 0
-                ? (TimeSpan?) new TimeSpan(proto.RepeatInterval)
-                : null;
-
             var ack = proto.Ack != null
                 ? MessageFromProto(proto.Ack)
                 : null;
+            var recipient = ActorPathFromProto(proto.Recipient);
+            var message = MessageFromProto(proto.Payload);
 
-            return new Reminder.Schedule(proto.TaskId, ActorPathFromProto(proto.Recipient), MessageFromProto(proto.Payload), new DateTime(proto.TriggerDate), repeatInterval, ack);
+            if (!string.IsNullOrEmpty(proto.CronExpression))
+            {
+                return new Reminder.ScheduleCron(proto.TaskId, recipient, message, new DateTime(proto.TriggerDate), proto.CronExpression, ack);
+            }
+            else if (proto.RepeatInterval != default)
+            {
+                var repeat = new TimeSpan(proto.RepeatInterval);
+                return new Reminder.ScheduleRepeatedly(proto.TaskId, recipient, message, new DateTime(proto.TriggerDate), repeat, ack);
+            }
+            else
+            {
+                return new Reminder.Schedule(proto.TaskId, recipient, message, new DateTime(proto.TriggerDate), ack);
+            }
         }
 
         private object MessageFromProto(OtherMessage proto)
@@ -232,7 +268,6 @@ namespace Akka.Persistence.Reminders.Serialization
             switch (o)
             {
                 case Reminder.State _: return StateManifest;
-                case Reminder.Entry _: return EntryManifest;
                 case Reminder.Completed _: return CompletedManifest;
                 case Reminder.Schedule _: return ScheduleManifest;
                 case Reminder.Scheduled _: return ScheduledManifest;

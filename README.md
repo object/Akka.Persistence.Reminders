@@ -1,4 +1,4 @@
-# Akka.Persistence.Reminders
+﻿# Akka.Persistence.Reminders
 
 An Akka.NET scheduler designed to work with long running tasks. When compared to standard `ActorSystem` scheduler, there are two major differences:
 
@@ -14,10 +14,15 @@ using (var system = ActorSystem.Create("system", config))
 {
 	// create a reminder
 	var reminder = system.ActorOf(Reminder.Props(), "reminder");
+	
+	var taskId = Guid.NewGuid().ToString();
 
 	// setup a message to be send to a recipient in the future
-	var taskId = Guid.NewGuid().ToString();
 	var task = new Reminder.Schedule(taskId, recipient.Path, "message", DateTime.UtcNow.AddDays(1));
+	// setup a message to be send in hour intervals
+	var task = new Reminder.ScheduleRepeatedly(taskId, recipient.Path, "message", DateTime.UtcNow.AddDays(1), TimeSpan.FromHours(1));
+	// setup a message to be send at 10:15am on the third Friday of every month
+	var task = new Reminder.ScheduleCron(taskId, recipient.Path, "message", DateTime.UtcNow.AddDays(1), "15 10 ? * 6#3");
 	reminder.Tell(task);
 	
 	// get scheduled entries
@@ -34,6 +39,31 @@ You can also define a reply message, that will be send back once a scheduled tas
 var task = new Reminder.Schedule(Guid.NewGuid().ToString(), recipient.Path, "message", DateTime.UtcNow.AddDays(1), ack: "reply");
 var ack = await reminder.Ask<string>(task); // ack should be "reply"
 ```
+
+### Cron Expressions
+
+You can setup schedule to repeat itself accordingly to following cron expressions format:
+
+```
+                                       Allowed values    Allowed special characters 
+
+ ┌───────────── minute                0-59              * , - /                      
+ │ ┌───────────── hour                0-23              * , - /                     
+ │ │ ┌───────────── day of month      1-31              * , - / L W ?               
+ │ │ │ ┌───────────── month           1-12 or JAN-DEC   * , - /                     
+ │ │ │ │ ┌───────────── day of week   0-6  or SUN-SAT   * , - / # L ?               
+ │ │ │ │ │
+ * * * * *
+```
+
+Other characteristics (supported by a [Cronos](https://github.com/HangfireIO/Cronos) library used by this plugin):
+
+- Supports non-standard characters like L, W, # and their combinations.
+- Supports reversed ranges, like 23-01 (equivalent to 23,00,01) or DEC-FEB (equivalent to DEC,JAN,FEB).
+- Supports time zones, and performs all the date/time conversions for you.
+- Does not skip occurrences, when the clock jumps forward to Daylight saving time (known as Summer time).
+- Does not skip interval-based occurrences, when the clock jumps backward from Summer time.
+- Does not retry non-interval based occurrences, when the clock jumps backward from Summer time.
 
 ### Using reminder in cluster
 
