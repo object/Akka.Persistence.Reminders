@@ -14,6 +14,7 @@ message ReminderEntry {
 	OtherMessage Payload = 3;
 	int64 TriggerDate = 4;
 	int64 RepeatInterval = 5;
+	string CronExpression = 6;
 }
 
 message ReminderState {
@@ -27,6 +28,7 @@ message ReminderSchedule {
 	int64 TriggerDate = 4;
 	int64 RepeatInterval = 5;
 	OtherMessage Ack = 6;
+	string CronExpression = 7;
 }
 
 message ReminderScheduled {

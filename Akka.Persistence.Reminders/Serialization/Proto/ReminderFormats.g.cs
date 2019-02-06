@@ -25,32 +25,33 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
             "ChVSZW1pbmRlckZvcm1hdHMucHJvdG8SLkFra2EuUGVyc2lzdGVuY2UuUmVt",
             "aW5kZXJzLlNlcmlhbGl6YXRpb24uUHJvdG8iRAoMT3RoZXJNZXNzYWdlEhQK",
             "DFNlcmlhbGl6ZXJJZBgBIAEoBRIMCgRCb2R5GAIgASgMEhAKCE1hbmlmZXN0",
-            "GAMgASgJIq4BCg1SZW1pbmRlckVudHJ5Eg4KBlRhc2tJZBgBIAEoCRIRCglS",
+            "GAMgASgJIsYBCg1SZW1pbmRlckVudHJ5Eg4KBlRhc2tJZBgBIAEoCRIRCglS",
             "ZWNpcGllbnQYAiABKAkSTQoHUGF5bG9hZBgDIAEoCzI8LkFra2EuUGVyc2lz",
             "dGVuY2UuUmVtaW5kZXJzLlNlcmlhbGl6YXRpb24uUHJvdG8uT3RoZXJNZXNz",
             "YWdlEhMKC1RyaWdnZXJEYXRlGAQgASgDEhYKDlJlcGVhdEludGVydmFsGAUg",
-            "ASgDIl8KDVJlbWluZGVyU3RhdGUSTgoHRW50cmllcxgBIAMoCzI9LkFra2Eu",
-            "UGVyc2lzdGVuY2UuUmVtaW5kZXJzLlNlcmlhbGl6YXRpb24uUHJvdG8uUmVt",
-            "aW5kZXJFbnRyeSL8AQoQUmVtaW5kZXJTY2hlZHVsZRIOCgZUYXNrSWQYASAB",
-            "KAkSEQoJUmVjaXBpZW50GAIgASgJEk0KB1BheWxvYWQYAyABKAsyPC5Ba2th",
-            "LlBlcnNpc3RlbmNlLlJlbWluZGVycy5TZXJpYWxpemF0aW9uLlByb3RvLk90",
-            "aGVyTWVzc2FnZRITCgtUcmlnZ2VyRGF0ZRgEIAEoAxIWCg5SZXBlYXRJbnRl",
-            "cnZhbBgFIAEoAxJJCgNBY2sYBiABKAsyPC5Ba2thLlBlcnNpc3RlbmNlLlJl",
-            "bWluZGVycy5TZXJpYWxpemF0aW9uLlByb3RvLk90aGVyTWVzc2FnZSJhChFS",
-            "ZW1pbmRlclNjaGVkdWxlZBJMCgVFbnRyeRgBIAEoCzI9LkFra2EuUGVyc2lz",
-            "dGVuY2UuUmVtaW5kZXJzLlNlcmlhbGl6YXRpb24uUHJvdG8uUmVtaW5kZXJF",
-            "bnRyeSI7ChFSZW1pbmRlckNvbXBsZXRlZBIOCgZUYXNrSWQYASABKAkSFgoO",
-            "Q29tcGxldGlvbkRhdGUYAiABKAMiawoOUmVtaW5kZXJDYW5jZWwSDgoGVGFz",
-            "a0lkGAEgASgJEkkKA0FjaxgCIAEoCzI8LkFra2EuUGVyc2lzdGVuY2UuUmVt",
-            "aW5kZXJzLlNlcmlhbGl6YXRpb24uUHJvdG8uT3RoZXJNZXNzYWdlYgZwcm90",
-            "bzM="));
+            "ASgDEhYKDkNyb25FeHByZXNzaW9uGAYgASgJIl8KDVJlbWluZGVyU3RhdGUS",
+            "TgoHRW50cmllcxgBIAMoCzI9LkFra2EuUGVyc2lzdGVuY2UuUmVtaW5kZXJz",
+            "LlNlcmlhbGl6YXRpb24uUHJvdG8uUmVtaW5kZXJFbnRyeSKUAgoQUmVtaW5k",
+            "ZXJTY2hlZHVsZRIOCgZUYXNrSWQYASABKAkSEQoJUmVjaXBpZW50GAIgASgJ",
+            "Ek0KB1BheWxvYWQYAyABKAsyPC5Ba2thLlBlcnNpc3RlbmNlLlJlbWluZGVy",
+            "cy5TZXJpYWxpemF0aW9uLlByb3RvLk90aGVyTWVzc2FnZRITCgtUcmlnZ2Vy",
+            "RGF0ZRgEIAEoAxIWCg5SZXBlYXRJbnRlcnZhbBgFIAEoAxJJCgNBY2sYBiAB",
+            "KAsyPC5Ba2thLlBlcnNpc3RlbmNlLlJlbWluZGVycy5TZXJpYWxpemF0aW9u",
+            "LlByb3RvLk90aGVyTWVzc2FnZRIWCg5Dcm9uRXhwcmVzc2lvbhgHIAEoCSJh",
+            "ChFSZW1pbmRlclNjaGVkdWxlZBJMCgVFbnRyeRgBIAEoCzI9LkFra2EuUGVy",
+            "c2lzdGVuY2UuUmVtaW5kZXJzLlNlcmlhbGl6YXRpb24uUHJvdG8uUmVtaW5k",
+            "ZXJFbnRyeSI7ChFSZW1pbmRlckNvbXBsZXRlZBIOCgZUYXNrSWQYASABKAkS",
+            "FgoOQ29tcGxldGlvbkRhdGUYAiABKAMiawoOUmVtaW5kZXJDYW5jZWwSDgoG",
+            "VGFza0lkGAEgASgJEkkKA0FjaxgCIAEoCzI8LkFra2EuUGVyc2lzdGVuY2Uu",
+            "UmVtaW5kZXJzLlNlcmlhbGl6YXRpb24uUHJvdG8uT3RoZXJNZXNzYWdlYgZw",
+            "cm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Reminders.Serialization.Proto.OtherMessage), global::Akka.Persistence.Reminders.Serialization.Proto.OtherMessage.Parser, new[]{ "SerializerId", "Body", "Manifest" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Reminders.Serialization.Proto.ReminderEntry), global::Akka.Persistence.Reminders.Serialization.Proto.ReminderEntry.Parser, new[]{ "TaskId", "Recipient", "Payload", "TriggerDate", "RepeatInterval" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Reminders.Serialization.Proto.ReminderEntry), global::Akka.Persistence.Reminders.Serialization.Proto.ReminderEntry.Parser, new[]{ "TaskId", "Recipient", "Payload", "TriggerDate", "RepeatInterval", "CronExpression" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Reminders.Serialization.Proto.ReminderState), global::Akka.Persistence.Reminders.Serialization.Proto.ReminderState.Parser, new[]{ "Entries" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Reminders.Serialization.Proto.ReminderSchedule), global::Akka.Persistence.Reminders.Serialization.Proto.ReminderSchedule.Parser, new[]{ "TaskId", "Recipient", "Payload", "TriggerDate", "RepeatInterval", "Ack" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Reminders.Serialization.Proto.ReminderSchedule), global::Akka.Persistence.Reminders.Serialization.Proto.ReminderSchedule.Parser, new[]{ "TaskId", "Recipient", "Payload", "TriggerDate", "RepeatInterval", "Ack", "CronExpression" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Reminders.Serialization.Proto.ReminderScheduled), global::Akka.Persistence.Reminders.Serialization.Proto.ReminderScheduled.Parser, new[]{ "Entry" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Reminders.Serialization.Proto.ReminderCompleted), global::Akka.Persistence.Reminders.Serialization.Proto.ReminderCompleted.Parser, new[]{ "TaskId", "CompletionDate" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Akka.Persistence.Reminders.Serialization.Proto.ReminderCancel), global::Akka.Persistence.Reminders.Serialization.Proto.ReminderCancel.Parser, new[]{ "TaskId", "Ack" }, null, null, null)
@@ -262,6 +263,7 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
       Payload = other.payload_ != null ? other.Payload.Clone() : null;
       triggerDate_ = other.triggerDate_;
       repeatInterval_ = other.repeatInterval_;
+      cronExpression_ = other.cronExpression_;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -324,6 +326,17 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
       }
     }
 
+    /// <summary>Field number for the "CronExpression" field.</summary>
+    public const int CronExpressionFieldNumber = 6;
+    private string cronExpression_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string CronExpression {
+      get { return cronExpression_; }
+      set {
+        cronExpression_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as ReminderEntry);
@@ -342,6 +355,7 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
       if (!object.Equals(Payload, other.Payload)) return false;
       if (TriggerDate != other.TriggerDate) return false;
       if (RepeatInterval != other.RepeatInterval) return false;
+      if (CronExpression != other.CronExpression) return false;
       return true;
     }
 
@@ -353,6 +367,7 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
       if (payload_ != null) hash ^= Payload.GetHashCode();
       if (TriggerDate != 0L) hash ^= TriggerDate.GetHashCode();
       if (RepeatInterval != 0L) hash ^= RepeatInterval.GetHashCode();
+      if (CronExpression.Length != 0) hash ^= CronExpression.GetHashCode();
       return hash;
     }
 
@@ -383,6 +398,10 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
         output.WriteRawTag(40);
         output.WriteInt64(RepeatInterval);
       }
+      if (CronExpression.Length != 0) {
+        output.WriteRawTag(50);
+        output.WriteString(CronExpression);
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -402,6 +421,9 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
       }
       if (RepeatInterval != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeInt64Size(RepeatInterval);
+      }
+      if (CronExpression.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(CronExpression);
       }
       return size;
     }
@@ -428,6 +450,9 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
       }
       if (other.RepeatInterval != 0L) {
         RepeatInterval = other.RepeatInterval;
+      }
+      if (other.CronExpression.Length != 0) {
+        CronExpression = other.CronExpression;
       }
     }
 
@@ -460,6 +485,10 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
           }
           case 40: {
             RepeatInterval = input.ReadInt64();
+            break;
+          }
+          case 50: {
+            CronExpression = input.ReadString();
             break;
           }
         }
@@ -607,6 +636,7 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
       triggerDate_ = other.triggerDate_;
       repeatInterval_ = other.repeatInterval_;
       Ack = other.ack_ != null ? other.Ack.Clone() : null;
+      cronExpression_ = other.cronExpression_;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -680,6 +710,17 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
       }
     }
 
+    /// <summary>Field number for the "CronExpression" field.</summary>
+    public const int CronExpressionFieldNumber = 7;
+    private string cronExpression_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string CronExpression {
+      get { return cronExpression_; }
+      set {
+        cronExpression_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as ReminderSchedule);
@@ -699,6 +740,7 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
       if (TriggerDate != other.TriggerDate) return false;
       if (RepeatInterval != other.RepeatInterval) return false;
       if (!object.Equals(Ack, other.Ack)) return false;
+      if (CronExpression != other.CronExpression) return false;
       return true;
     }
 
@@ -711,6 +753,7 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
       if (TriggerDate != 0L) hash ^= TriggerDate.GetHashCode();
       if (RepeatInterval != 0L) hash ^= RepeatInterval.GetHashCode();
       if (ack_ != null) hash ^= Ack.GetHashCode();
+      if (CronExpression.Length != 0) hash ^= CronExpression.GetHashCode();
       return hash;
     }
 
@@ -745,6 +788,10 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
         output.WriteRawTag(50);
         output.WriteMessage(Ack);
       }
+      if (CronExpression.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteString(CronExpression);
+      }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -767,6 +814,9 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
       }
       if (ack_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Ack);
+      }
+      if (CronExpression.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(CronExpression);
       }
       return size;
     }
@@ -799,6 +849,9 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
           ack_ = new global::Akka.Persistence.Reminders.Serialization.Proto.OtherMessage();
         }
         Ack.MergeFrom(other.Ack);
+      }
+      if (other.CronExpression.Length != 0) {
+        CronExpression = other.CronExpression;
       }
     }
 
@@ -838,6 +891,10 @@ namespace Akka.Persistence.Reminders.Serialization.Proto {
               ack_ = new global::Akka.Persistence.Reminders.Serialization.Proto.OtherMessage();
             }
             input.ReadMessage(ack_);
+            break;
+          }
+          case 58: {
+            CronExpression = input.ReadString();
             break;
           }
         }

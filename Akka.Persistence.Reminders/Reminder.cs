@@ -45,12 +45,27 @@ namespace Akka.Persistence.Reminders
         private long counter = 0L;
         private readonly ReminderSettings settings;
 
+        private readonly Action<IReminderEvent> UpdateState;
+
         public Reminder() : this(ReminderSettings.Create(Context.System.Settings.Config.GetConfig("akka.persistence.reminder")))
         {
         }
 
         public Reminder(ReminderSettings settings)
         {
+            this.UpdateState = e =>
+            {
+                switch (e)
+                {
+                    case Scheduled scheduled:
+                        this.state = state.AddEntry(scheduled.Entry);
+                        break;
+                    case Completed completed:
+                        this.state = state.RemoveEntry(completed.TaskId);
+                        break;
+                }
+            };
+
             this.settings = settings;
             PersistenceId = settings.PersistenceId;
             JournalPluginId = settings.JournalPluginId;
@@ -61,34 +76,45 @@ namespace Akka.Persistence.Reminders
             Command<Tick>(_ =>
             {
                 var now = DateTime.UtcNow;
-                foreach (var entry in state.Entries.Values.Where(e => ShouldTrigger(e, now)))
+                foreach (var schedule in state.Entries.Values.Where(e => ShouldTrigger(e, now)))
                 {
-                    Log.Info("Sending message [{0}] to recipient [{1}]", entry.Message, entry.Recipient);
+                    Log.Info("Sending message [{0}] to recipient [{1}]", schedule.Message, schedule.Recipient);
 
-                    var selection = Context.ActorSelection(entry.Recipient);
-                    selection.Tell(entry.Message, ActorRefs.NoSender);
+                    var selection = Context.ActorSelection(schedule.Recipient);
+                    selection.Tell(schedule.Message, ActorRefs.NoSender);
 
-                    Emit(new Completed(entry.TaskId, now), UpdateState);
+                    Emit(new Completed(schedule.TaskId, now), UpdateState);
 
-                    if (entry.RepeatInterval.HasValue)
+                    var next = schedule.WithNextTriggerDate(now);
+                    if (next != null)
                     {
-                        var next = now + entry.RepeatInterval.Value;
-                        Emit(new Scheduled(entry.WithNextTriggerDate(next)), UpdateState);
+                        Emit(new Scheduled(next), UpdateState);
                     }
                 }
             });
             Command<Schedule>(schedule =>
             {
-                var entry = new Entry(schedule.TaskId, schedule.Recipient, schedule.Message, schedule.TriggerDateUtc, schedule.RepeatInterval);
                 var sender = Sender;
-                Emit(new Scheduled(entry), e =>
+                try
                 {
-                    UpdateState(e);
+                    Emit(new Scheduled(schedule.WithoutAck()), e =>
+                    {
+                        UpdateState(e);
+                        //NOTE: use `schedule`, not `e` - latter contains a version with ACK explicitly erased to avoid storing ack in persistent memory
+                        if (schedule.Ack != null)
+                        {
+                            sender.Tell(schedule.Ack);
+                        }
+                    });
+                }
+                catch (Exception error)
+                {
+                    Log.Error(error, "Failed to schedule: [{0}]", schedule);
                     if (schedule.Ack != null)
                     {
-                        sender.Tell(schedule.Ack);
+                        sender.Tell(new Status.Failure(error));
                     }
-                });
+                }
             });
             Command<GetState>(_ =>
             {
@@ -97,14 +123,25 @@ namespace Akka.Persistence.Reminders
             Command<Cancel>(cancel =>
             {
                 var sender = Sender;
-                Emit(new Completed(cancel.TaskId, DateTime.UtcNow), e =>
+                try
                 {
-                    UpdateState(e);
+                    Emit(new Completed(cancel.TaskId, DateTime.UtcNow), e =>
+                    {
+                        UpdateState(e);
+                        if (cancel.Ack != null)
+                        {
+                            sender.Tell(cancel.Ack);
+                        }
+                    });
+                }
+                catch (Exception error)
+                {
+                    Log.Error(error, "Failed to cancel task: [{0}]", cancel.TaskId);
                     if (cancel.Ack != null)
                     {
-                        sender.Tell(cancel.Ack);
+                        sender.Tell(new Status.Failure(error));
                     }
-                });
+                }
             });
             Command<SaveSnapshotSuccess>(success =>
             {
@@ -115,20 +152,20 @@ namespace Akka.Persistence.Reminders
             {
                 Log.Error(failure.Cause, "Failed to save reminder snapshot");
             });
-            Recover<Scheduled>(scheduled => UpdateState(scheduled));
-            Recover<Completed>(completed => UpdateState(completed));
+            Recover<Scheduled>(UpdateState);
+            Recover<Completed>(UpdateState);
             Recover<SnapshotOffer>(offer =>
             {
-                if (offer.Snapshot is State offerred)
+                if (offer.Snapshot is State state)
                 {
-                    state = offerred;
+                    this.state = state;
                 }
             });
         }
 
-        protected virtual bool ShouldTrigger(Entry entry, DateTime now)
+        protected virtual bool ShouldTrigger(Schedule schedule, DateTime now)
         {
-            return entry.TriggerDateUtc <= now;
+            return schedule.TriggerDateUtc <= now;
         }
 
         private void Emit<T>(T reminderEvent, Action<T> handler) where T : IReminderEvent
@@ -147,21 +184,6 @@ namespace Akka.Persistence.Reminders
             {
                 SaveSnapshot(state);
             }
-        }
-
-        private void UpdateState(IReminderEvent e)
-        {
-            switch (e)
-            {
-                case Scheduled scheduled:
-                    state = state.AddEntry(scheduled.Entry);
-                    break;
-                case Completed completed:
-                    state = state.RemoveEntry(completed.TaskId);
-                    break;
-            }
-
-            Log.Debug("Reminder state has been updated from the event: {0}", e);
         }
 
         protected override void PostStop()
