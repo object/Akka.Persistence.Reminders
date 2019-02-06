@@ -209,7 +209,7 @@ namespace Akka.Persistence.Reminders.Serialization
             {
                 return new Reminder.ScheduleCron(proto.TaskId, recipient, message, new DateTime(proto.TriggerDate), proto.CronExpression);
             }
-            else if (proto.RepeatInterval != default)
+            else if (proto.RepeatInterval != 0)
             {
                 var repeat = new TimeSpan(proto.RepeatInterval);
                 return new Reminder.ScheduleRepeatedly(proto.TaskId, recipient, message, new DateTime(proto.TriggerDate), repeat);
@@ -237,7 +237,7 @@ namespace Akka.Persistence.Reminders.Serialization
             {
                 return new Reminder.ScheduleCron(proto.TaskId, recipient, message, new DateTime(proto.TriggerDate), proto.CronExpression, ack);
             }
-            else if (proto.RepeatInterval != default)
+            else if (proto.RepeatInterval != 0)
             {
                 var repeat = new TimeSpan(proto.RepeatInterval);
                 return new Reminder.ScheduleRepeatedly(proto.TaskId, recipient, message, new DateTime(proto.TriggerDate), repeat, ack);
