@@ -1,13 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp1.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Akka.Persistence" Version="1.3.10" />
-    <PackageReference Include="Akka.TestKit.Xunit" Version="1.3.10" />
+    <PackageReference Include="Akka.Persistence" Version="1.4.1-rc1" />
+    <PackageReference Include="Akka.TestKit.Xunit" Version="1.4.1-rc1" />
     <PackageReference Include="FluentAssertions" Version="5.5.3" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">

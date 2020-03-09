@@ -9,7 +9,7 @@ An Akka.NET scheduler designed to work with long running tasks. When compared to
 
 
 ```csharp
-var config = ConfigurationFactory.Load().WithFallback(Reminder.DefaultConfig);
+var config = HoconConfigurationFactory.Load().WithFallback(Reminder.DefaultConfig);
 using (var system = ActorSystem.Create("system", config))
 {
 	// create a reminder

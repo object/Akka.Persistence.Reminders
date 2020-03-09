@@ -1,7 +1,7 @@
 ﻿#region copyright
 // -----------------------------------------------------------------------
 //  <copyright file="Reminder.cs" creator="Bartosz Sypytkowski">
-//      Copyright (C) 2017 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
+//      Copyright (C) 2017-2020 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
 //  </copyright>
 // -----------------------------------------------------------------------
 #endregion
@@ -9,8 +9,7 @@
 using System;
 using System.Linq;
 using Akka.Actor;
-using Akka.Configuration;
-using Akka.Event;
+using Hocon;
 
 namespace Akka.Persistence.Reminders
 {
@@ -26,7 +25,7 @@ namespace Akka.Persistence.Reminders
         /// <summary>
         /// A default set of configuration parameters used by the <see cref="Reminder"/> actor.
         /// </summary>
-        public static Config DefaultConfig => ConfigurationFactory.FromResource<Reminder>("Akka.Persistence.Reminders.reference.conf");
+        public static Config DefaultConfig => HoconConfigurationFactory.FromResource<Reminder>("Akka.Persistence.Reminders.reference.conf");
 
         /// <summary>
         /// An actor <see cref="Akka.Actor.Props"/> for <see cref="Reminder"/> class setup using default settings.

@@ -30,7 +30,7 @@ namespace Akka.Persistence.Reminders.Serialization
         public static readonly byte[] EmptyBytes = new byte[0];
 
         private readonly ExtendedActorSystem _system;
-        protected Akka.Serialization.Serialization Serialization => _system.Serialization;
+        private Akka.Serialization.Serialization Serialization => _system.Serialization;
 
         public ReminderSerializer(ExtendedActorSystem system) : base(system)
         {

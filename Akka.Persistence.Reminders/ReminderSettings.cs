@@ -1,13 +1,13 @@
 #region copyright
 // -----------------------------------------------------------------------
 //  <copyright file="ReminderSettings.cs" creator="Bartosz Sypytkowski">
-//      Copyright (C) 2017 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
+//      Copyright (C) 2017-2020 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
 //  </copyright>
 // -----------------------------------------------------------------------
 #endregion
 
 using System;
-using Akka.Configuration;
+using Hocon;
 
 namespace Akka.Persistence.Reminders
 {

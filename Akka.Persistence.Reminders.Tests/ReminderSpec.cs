@@ -1,7 +1,7 @@
 ﻿#region copyright
 // -----------------------------------------------------------------------
 //  <copyright file="ReminderSpec.cs" creator="Bartosz Sypytkowski">
-//      Copyright (C) 2017 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
+//      Copyright (C) 2017-2020 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
 //  </copyright>
 // -----------------------------------------------------------------------
 #endregion
@@ -11,7 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Akka.Actor;
-using Akka.Configuration;
+using Hocon;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -57,7 +57,7 @@ namespace Akka.Persistence.Reminders.Tests
 
         private int seqNrCounter = 0;
 
-        private static readonly Config TestConfig = ConfigurationFactory.ParseString(@"
+        private static readonly Config TestConfig = HoconConfigurationFactory.ParseString(@"
                 akka.persistence.snapshot-store.local.dir = ""target/snapshots-ReminderSpec/""")
             .WithFallback(Reminder.DefaultConfig);
 

@@ -1,16 +1,13 @@
 ﻿#region copyright
 // -----------------------------------------------------------------------
 //  <copyright file="SerializationSpec.cs" creator="Bartosz Sypytkowski">
-//      Copyright (C) 2017 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
+//      Copyright (C) 2017-2020 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
 //  </copyright>
 // -----------------------------------------------------------------------
 #endregion
 
 using System;
-using System.Collections.Immutable;
 using Akka.Persistence.Reminders.Serialization;
-using Akka.Serialization;
-using Cronos;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
