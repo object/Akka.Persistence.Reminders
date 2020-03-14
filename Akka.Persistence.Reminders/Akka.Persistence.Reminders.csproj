@@ -6,13 +6,12 @@
     <PackageTags>akka.net;actors;persistence;reminders;scheduler</PackageTags>
     <Copyright>Copyright © 2017-2020 Akka.NET Team</Copyright>
     <Authors>Bartosz Sypytkowski</Authors>
-    <VersionPrefix>0.2</VersionPrefix>
+    <VersionPrefix>0.3</VersionPrefix>
     <PackageProjectUrl>https://github.com/Horusiath/Akka.Persistence.Reminders</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/Horusiath/Akka.Persistence.Reminders/blob/master/LICENSE</PackageLicenseUrl>
     <PackageReleaseNotes>Added support for cron expressions.</PackageReleaseNotes>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.6' ">1.6.1</NetStandardImplicitPackageVersion>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
