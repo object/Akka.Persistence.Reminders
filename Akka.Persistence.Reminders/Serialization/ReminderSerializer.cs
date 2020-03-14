@@ -1,7 +1,7 @@
 ﻿#region copyright
 // -----------------------------------------------------------------------
 //  <copyright file="ReminderSerializer.cs" creator="Bartosz Sypytkowski">
-//      Copyright (C) 2017 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
+//      Copyright (C) 2017-2020 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
 //  </copyright>
 // -----------------------------------------------------------------------
 #endregion
@@ -30,7 +30,7 @@ namespace Akka.Persistence.Reminders.Serialization
         public static readonly byte[] EmptyBytes = new byte[0];
 
         private readonly ExtendedActorSystem _system;
-        protected Akka.Serialization.Serialization Serialization => _system.Serialization;
+        private Akka.Serialization.Serialization Serialization => _system.Serialization;
 
         public ReminderSerializer(ExtendedActorSystem system) : base(system)
         {
