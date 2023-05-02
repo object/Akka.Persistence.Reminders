@@ -140,9 +140,10 @@ namespace Akka.Persistence.Reminders.Tests
         [Fact]
         public void Reminder_must_return_items_with_take_count_when_requested()
         {
-            var at = DateTime.UtcNow.AddSeconds(2);
-            var s1 = CreateSchedule("A", at);
-            var s2 = CreateSchedule("B", at);
+            var at1 = DateTime.UtcNow.AddSeconds(2);
+            var at2 = DateTime.UtcNow.AddSeconds(2);
+            var s1 = CreateSchedule("A", at1);
+            var s2 = CreateSchedule("B", at2);
 
             reminder.Tell(s1, TestActor);
             reminder.Tell(s2, TestActor);
@@ -153,7 +154,7 @@ namespace Akka.Persistence.Reminders.Tests
             reminder.Tell(Reminder.GetItems.Instance(1), TestActor);
 
             var expected = Reminder.State.Empty
-                .AddEntry(CreateSchedule("A", at, withAck: false));
+                .AddEntry(CreateSchedule("A", at1, withAck: false));
 
             ExpectMsg(expected);
         }
@@ -161,9 +162,10 @@ namespace Akka.Persistence.Reminders.Tests
         [Fact]
         public void Reminder_must_return_items_with_skip_count_when_requested()
         {
-            var at = DateTime.UtcNow.AddSeconds(2);
-            var s1 = CreateSchedule("A", at);
-            var s2 = CreateSchedule("B", at);
+            var at1 = DateTime.UtcNow.AddSeconds(2);
+            var at2 = DateTime.UtcNow.AddSeconds(2);
+            var s1 = CreateSchedule("A", at1);
+            var s2 = CreateSchedule("B", at2);
 
             reminder.Tell(s1, TestActor);
             reminder.Tell(s2, TestActor);
@@ -174,7 +176,7 @@ namespace Akka.Persistence.Reminders.Tests
             reminder.Tell(Reminder.GetItems.Instance(1, 1), TestActor);
 
             var expected = Reminder.State.Empty
-                .AddEntry(CreateSchedule("B", at, withAck: false));
+                .AddEntry(CreateSchedule("B", at2, withAck: false));
 
             ExpectMsg(expected);
         }
