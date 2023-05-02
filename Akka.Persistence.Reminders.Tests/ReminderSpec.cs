@@ -118,6 +118,68 @@ namespace Akka.Persistence.Reminders.Tests
         }
 
         [Fact]
+        public void Reminder_must_return_item_count_when_requested()
+        {
+            var at = DateTime.UtcNow.AddSeconds(2);
+            var s1 = CreateSchedule("A", at);
+            var s2 = CreateSchedule("B", at);
+
+            reminder.Tell(s1, TestActor);
+            reminder.Tell(s2, TestActor);
+
+            ExpectMsg("A-ack");
+            ExpectMsg("B-ack");
+
+            reminder.Tell(Reminder.GetItemCount.Instance, TestActor);
+
+            var expected = 2;
+
+            ExpectMsg(expected);
+        }
+
+        [Fact]
+        public void Reminder_must_return_items_with_take_count_when_requested()
+        {
+            var at = DateTime.UtcNow.AddSeconds(2);
+            var s1 = CreateSchedule("A", at);
+            var s2 = CreateSchedule("B", at);
+
+            reminder.Tell(s1, TestActor);
+            reminder.Tell(s2, TestActor);
+
+            ExpectMsg("A-ack");
+            ExpectMsg("B-ack");
+
+            reminder.Tell(Reminder.GetItems.Instance(1), TestActor);
+
+            var expected = Reminder.State.Empty
+                .AddEntry(CreateSchedule("A", at, withAck: false));
+
+            ExpectMsg(expected);
+        }
+
+        [Fact]
+        public void Reminder_must_return_items_with_skip_count_when_requested()
+        {
+            var at = DateTime.UtcNow.AddSeconds(2);
+            var s1 = CreateSchedule("A", at);
+            var s2 = CreateSchedule("B", at);
+
+            reminder.Tell(s1, TestActor);
+            reminder.Tell(s2, TestActor);
+
+            ExpectMsg("A-ack");
+            ExpectMsg("B-ack");
+
+            reminder.Tell(Reminder.GetItems.Instance(1, 1), TestActor);
+
+            var expected = Reminder.State.Empty
+                .AddEntry(CreateSchedule("B", at, withAck: false));
+
+            ExpectMsg(expected);
+        }
+
+        [Fact]
         public void Reminder_must_complete_task_after_sending_a_message()
         {
             var at = DateTime.UtcNow.AddSeconds(2);
