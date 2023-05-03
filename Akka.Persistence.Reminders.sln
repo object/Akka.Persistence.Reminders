@@ -10,13 +10,15 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BF333720-0308-4AA2-86B3-046D41334EF8}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
-		build.cmd = build.cmd
-		build.fsx = build.fsx
-		build.ps1 = build.ps1
 		build.sh = build.sh
 		LICENSE = LICENSE
 		README.md = README.md
 		RELEASE_NOTES.md = RELEASE_NOTES.md
+		push.sh = push.sh
+		pack.sh = pack.sh
+		build.cmd = build.cmd
+		pack.cmd = pack.cmd
+		push.cmd = push.cmd
 	EndProjectSection
 EndProject
 Global

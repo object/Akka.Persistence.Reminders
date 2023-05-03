@@ -1,0 +1,1 @@
+dotnet nuget push build/packages/Akka.Persistence.Reminders.%1.nupkg --api-key %2 --source https://api.nuget.org/v3/index.json
