@@ -431,10 +431,7 @@ namespace Akka.Persistence.Reminders
         }
 
         /// <summary>
-        /// Cancels a previous <see cref="Schedule"/> identified by <see cref="TaskId"/>.
-        /// 
-        /// Optionally, if <see cref="Ack"/> has been defined it will be returned back to cancel 
-        /// sender, when cancellation has been completed.
+        /// Returns a subset of reminders by extracting <see cref="takeCount"/> first elements after the skipped <see cref="skipCount"/> elements/>.
         /// </summary>
         public sealed class GetItems : IReminderCommand, IEquatable<GetItems>, IReminderFormat
         {
