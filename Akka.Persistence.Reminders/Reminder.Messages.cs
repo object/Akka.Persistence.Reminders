@@ -1,7 +1,7 @@
 ﻿#region copyright
 // -----------------------------------------------------------------------
 //  <copyright file="Reminder.Messages.cs" creator="Bartosz Sypytkowski">
-//      Copyright (C) 2017-2020 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
+//      Copyright (C) 2017-2023 Bartosz Sypytkowski and contributors
 //  </copyright>
 // -----------------------------------------------------------------------
 #endregion
@@ -431,7 +431,7 @@ namespace Akka.Persistence.Reminders
         }
 
         /// <summary>
-        /// Returns a subset of reminders by extracting <see cref="takeCount"/> first elements after the skipped <see cref="skipCount"/> elements/>.
+        /// Returns a subset of reminders by extracting <see cref="TakeCount"/> first elements after the skipped <see cref="SkipCount"/> elements/>.
         /// </summary>
         public sealed class GetItems : IReminderCommand, IEquatable<GetItems>, IReminderFormat
         {
