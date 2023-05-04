@@ -1,13 +1,14 @@
 ﻿#region copyright
 // -----------------------------------------------------------------------
 //  <copyright file="Reminder.Messages.cs" creator="Bartosz Sypytkowski">
-//      Copyright (C) 2017-2020 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
+//      Copyright (C) 2017-2023 Bartosz Sypytkowski and contributors
 //  </copyright>
 // -----------------------------------------------------------------------
 #endregion
 
 using System;
 using System.Collections.Immutable;
+using System.ComponentModel.Design.Serialization;
 using System.Text.RegularExpressions;
 using Akka.Actor;
 using Cronos;
@@ -120,7 +121,7 @@ namespace Akka.Persistence.Reminders
             {
                 if (ReferenceEquals(null, obj)) return false;
                 if (ReferenceEquals(this, obj)) return true;
-                return obj is Schedule && Equals((Schedule)obj);
+                return obj is Schedule schedule && Equals(schedule);
             }
 
             public override int GetHashCode()
@@ -184,7 +185,7 @@ namespace Akka.Persistence.Reminders
             {
                 if (ReferenceEquals(null, obj)) return false;
                 if (ReferenceEquals(this, obj)) return true;
-                return obj is ScheduleRepeatedly && Equals((ScheduleRepeatedly)obj);
+                return obj is ScheduleRepeatedly repeatedly && Equals(repeatedly);
             }
 
             public override int GetHashCode()
@@ -266,7 +267,7 @@ namespace Akka.Persistence.Reminders
             {
                 if (ReferenceEquals(null, obj)) return false;
                 if (ReferenceEquals(this, obj)) return true;
-                return obj is ScheduleCron && Equals((ScheduleCron)obj);
+                return obj is ScheduleCron cron && Equals(cron);
             }
 
             public override int GetHashCode()
@@ -307,7 +308,7 @@ namespace Akka.Persistence.Reminders
             {
                 if (ReferenceEquals(null, obj)) return false;
                 if (ReferenceEquals(this, obj)) return true;
-                return obj is Scheduled && Equals((Scheduled)obj);
+                return obj is Scheduled scheduled && Equals(scheduled);
             }
 
             public override int GetHashCode()
@@ -340,7 +341,7 @@ namespace Akka.Persistence.Reminders
             {
                 if (ReferenceEquals(null, obj)) return false;
                 if (ReferenceEquals(this, obj)) return true;
-                return obj is Completed && Equals((Completed)obj);
+                return obj is Completed completed && Equals(completed);
             }
 
             public override int GetHashCode()
@@ -382,7 +383,7 @@ namespace Akka.Persistence.Reminders
             {
                 if (ReferenceEquals(null, obj)) return false;
                 if (ReferenceEquals(this, obj)) return true;
-                return obj is Cancel && Equals((Cancel) obj);
+                return obj is Cancel cancel && Equals(cancel);
             }
 
             public override int GetHashCode()
@@ -403,14 +404,73 @@ namespace Akka.Persistence.Reminders
         /// </summary>
         public sealed class GetState : IReminderCommand, IReminderFormat
         {
-            public static GetState Instance { get; } = new GetState();
+            public static GetState Instance { get; } = new();
             private GetState() { }
         }
 
         internal sealed class Tick : IReminderCommand
         {
-            public static Tick Instance { get; } = new Tick();
+            public static Tick Instance { get; } = new();
             private Tick() { }
+        }
+
+        /// <summary>
+        /// Returns the count of pending reminders/>.
+        /// </summary>
+        public sealed class GetItemCount : IReminderCommand, IEquatable<GetItemCount>, IReminderFormat
+        {
+            public static GetItemCount Instance { get; } = new();
+            private GetItemCount() {}
+
+            public bool Equals(GetItemCount other)
+            {
+                return true;
+            }
+
+            public override string ToString() => "GetItemCount";
+        }
+
+        /// <summary>
+        /// Returns a subset of reminders by extracting <see cref="TakeCount"/> first elements after the skipped <see cref="SkipCount"/> elements/>.
+        /// </summary>
+        public sealed class GetItems : IReminderCommand, IEquatable<GetItems>, IReminderFormat
+        {
+            public static GetItems Instance(int takeCount = int.MaxValue, int skipCount = 0)
+            {
+                return new GetItems(takeCount, skipCount);
+            }
+            private GetItems(int takeCount, int skipCount)
+            {
+                TakeCount = takeCount;
+                SkipCount = skipCount;
+            }
+
+            public int TakeCount { get; }
+            public int SkipCount { get; }
+
+            public bool Equals(GetItems other)
+            {
+                if (ReferenceEquals(null, other)) return false;
+                if (ReferenceEquals(this, other)) return true;
+                return TakeCount == other.TakeCount && SkipCount == other.SkipCount;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (ReferenceEquals(null, obj)) return false;
+                if (ReferenceEquals(this, obj)) return true;
+                return obj is GetItems getItems && Equals(getItems);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return (TakeCount.GetHashCode() * 397) ^ SkipCount.GetHashCode();
+                }
+            }
+
+            public override string ToString() => $"GetItems(takeCount: {TakeCount}, skipCount: {SkipCount})";
         }
 
         #endregion

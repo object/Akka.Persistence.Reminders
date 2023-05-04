@@ -1,7 +1,7 @@
 ﻿#region copyright
 // -----------------------------------------------------------------------
 //  <copyright file="ReminderSpec.cs" creator="Bartosz Sypytkowski">
-//      Copyright (C) 2017-2020 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
+//      Copyright (C) 2017-2023 Bartosz Sypytkowski and contributors
 //  </copyright>
 // -----------------------------------------------------------------------
 #endregion
@@ -113,6 +113,70 @@ namespace Akka.Persistence.Reminders.Tests
             var expected = Reminder.State.Empty
                 .AddEntry(CreateSchedule("A", at, withAck: false))
                 .AddEntry(CreateSchedule("B", at, withAck: false));
+
+            ExpectMsg(expected);
+        }
+
+        [Fact]
+        public void Reminder_must_return_item_count_when_requested()
+        {
+            var at = DateTime.UtcNow.AddSeconds(2);
+            var s1 = CreateSchedule("A", at);
+            var s2 = CreateSchedule("B", at);
+
+            reminder.Tell(s1, TestActor);
+            reminder.Tell(s2, TestActor);
+
+            ExpectMsg("A-ack");
+            ExpectMsg("B-ack");
+
+            reminder.Tell(Reminder.GetItemCount.Instance, TestActor);
+
+            var expected = 2;
+
+            ExpectMsg(expected);
+        }
+
+        [Fact]
+        public void Reminder_must_return_items_with_take_count_when_requested()
+        {
+            var at1 = DateTime.UtcNow.AddSeconds(2);
+            var at2 = DateTime.UtcNow.AddSeconds(2);
+            var s1 = CreateSchedule("A", at1);
+            var s2 = CreateSchedule("B", at2);
+
+            reminder.Tell(s1, TestActor);
+            reminder.Tell(s2, TestActor);
+
+            ExpectMsg("A-ack");
+            ExpectMsg("B-ack");
+
+            reminder.Tell(Reminder.GetItems.Instance(1), TestActor);
+
+            var expected = Reminder.State.Empty
+                .AddEntry(CreateSchedule("A", at1, withAck: false));
+
+            ExpectMsg(expected);
+        }
+
+        [Fact]
+        public void Reminder_must_return_items_with_skip_count_when_requested()
+        {
+            var at1 = DateTime.UtcNow.AddSeconds(2);
+            var at2 = DateTime.UtcNow.AddSeconds(2);
+            var s1 = CreateSchedule("A", at1);
+            var s2 = CreateSchedule("B", at2);
+
+            reminder.Tell(s1, TestActor);
+            reminder.Tell(s2, TestActor);
+
+            ExpectMsg("A-ack");
+            ExpectMsg("B-ack");
+
+            reminder.Tell(Reminder.GetItems.Instance(1, 1), TestActor);
+
+            var expected = Reminder.State.Empty
+                .AddEntry(CreateSchedule("B", at2, withAck: false));
 
             ExpectMsg(expected);
         }

@@ -1,12 +1,13 @@
 ﻿#region copyright
 // -----------------------------------------------------------------------
 //  <copyright file="Reminder.cs" creator="Bartosz Sypytkowski">
-//      Copyright (C) 2017-2020 Bartosz Sypytkowski <b.sypytkowski@gmail.com>
+//      Copyright (C) 2017-2023 Bartosz Sypytkowski and contributors
 //  </copyright>
 // -----------------------------------------------------------------------
 #endregion
 
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using Akka.Actor;
 using Akka.Configuration;
@@ -119,6 +120,14 @@ namespace Akka.Persistence.Reminders
             Command<GetState>(_ =>
             {
                 Sender.Tell(state);
+            });
+            Command<GetItemCount>(_ =>
+            {
+                Sender.Tell(state.Entries.Count);
+            });
+            Command<GetItems>(cmd =>
+            {
+                Sender.Tell(new State(state.Entries.OrderBy(x => x.Value.TriggerDateUtc).Skip(cmd.SkipCount).Take(cmd.TakeCount).ToImmutableDictionary()));
             });
             Command<Cancel>(cancel =>
             {
