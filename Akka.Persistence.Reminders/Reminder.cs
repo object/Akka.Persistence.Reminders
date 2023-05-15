@@ -154,8 +154,17 @@ namespace Akka.Persistence.Reminders
             });
             Command<SaveSnapshotSuccess>(success =>
             {
-                Log.Debug("Successfully saved reminder snapshot. Removing all events before seqNr [{0}]", success.Metadata.SequenceNr);
-                DeleteMessages(success.Metadata.SequenceNr - 1);
+                Log.Debug("Successfully saved reminder snapshot.");
+                if (settings.CleanupOldMessages)
+                {
+                    Log.Debug("Removing all events before seqNr [{0}]", success.Metadata.SequenceNr);
+                    DeleteMessages(success.Metadata.SequenceNr - 1);
+                }
+                if (settings.CleanupOldSnapshots)
+                {
+                    Log.Debug("Removing all snapshots before seqNr [{0}]", success.Metadata.SequenceNr);
+                    DeleteSnapshots(new SnapshotSelectionCriteria(success.Metadata.SequenceNr - 1));
+                }
             });
             Command<SaveSnapshotFailure>(failure =>
             {

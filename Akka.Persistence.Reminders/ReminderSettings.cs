@@ -24,7 +24,10 @@ namespace Akka.Persistence.Reminders
             journalPluginId: "",
             snapshotPluginId: "",
             tickInterval: TimeSpan.FromSeconds(10),
-            snapshotInterval: 100);
+            snapshotInterval: 100,
+            cleanupOldMessages: true,
+            cleanupOldSnapshots: false
+            );
 
         public static ReminderSettings Create(Config config)
         {
@@ -35,7 +38,9 @@ namespace Akka.Persistence.Reminders
                 journalPluginId: config.GetString("journal-plugin-id", ""),
                 snapshotPluginId: config.GetString("snapshot-plugin-id", ""),
                 tickInterval: config.GetTimeSpan("tick-inverval", TimeSpan.FromSeconds(10)),
-                snapshotInterval: config.GetInt("snapshot-interval", 100));
+                snapshotInterval: config.GetInt("snapshot-interval", 100),
+                cleanupOldMessages: config.GetBoolean("cleanup-old-messages", true),
+                cleanupOldSnapshots: config.GetBoolean("cleanup-old-snapshots", false));
         }
 
         /// <summary>
@@ -72,13 +77,30 @@ namespace Akka.Persistence.Reminders
         /// </summary>
         public int SnapshotInterval { get; }
 
-        public ReminderSettings(string persistenceId, string journalPluginId, string snapshotPluginId, TimeSpan tickInterval, int snapshotInterval)
+        /// <summary>
+        /// Reminder periodically saves its state in Snapshot store, so old EventJournal entries can be removed from the database.
+        /// Default: true. (Default is set to true to match Reminder's behavior when this settings was not configurable)
+        /// </summary>
+        public bool CleanupOldMessages { get; }
+
+        /// <summary>
+        /// Current state of Reminder is stored in the most recent snapshot, so older SnapshotStore entries can be removed from the database.
+        /// Before enabling snapshot cleanup make sure the SnapshotStore table doesn't contain large number of entries for the given PersistenceId.
+        /// Deletion of large snapshots may take long time, so it may lead to timeout exception when deleting multiple snapshots. 
+        /// Default: false. (Default is set to false to match Reminder's behavior when this settings was not configurable)
+        /// </summary>
+        public bool CleanupOldSnapshots { get; }
+
+        public ReminderSettings(string persistenceId, string journalPluginId, string snapshotPluginId, 
+            TimeSpan tickInterval, int snapshotInterval, bool cleanupOldMessages, bool cleanupOldSnapshots)
         {
             PersistenceId = persistenceId ?? throw new ArgumentNullException(nameof(persistenceId));
             JournalPluginId = journalPluginId ?? throw new ArgumentNullException(nameof(journalPluginId));
             SnapshotPluginId = snapshotPluginId ?? throw new ArgumentNullException(nameof(snapshotPluginId));
             TickInterval = tickInterval;
             SnapshotInterval = snapshotInterval;
+            CleanupOldMessages = cleanupOldMessages;
+            CleanupOldSnapshots = cleanupOldSnapshots;
         }
 
         /// <summary>
@@ -108,12 +130,15 @@ namespace Akka.Persistence.Reminders
         /// </summary>
         public ReminderSettings WithSnapshotInterval(int snapshotInterval) => Copy(snapshotInterval: snapshotInterval);
 
-        private ReminderSettings Copy(string persistenceId = null, string journalPluginId = null, string snapshotPluginId = null, TimeSpan? tickInterval = null, int? snapshotInterval = null) =>
+        private ReminderSettings Copy(string persistenceId = null, string journalPluginId = null, string snapshotPluginId = null, 
+            TimeSpan? tickInterval = null, int? snapshotInterval = null, bool? deleteUnusedJournalEntries = null, bool? deleteUnusedSnapshotEntries = null) =>
             new ReminderSettings(
                 persistenceId: persistenceId ?? PersistenceId,
                 journalPluginId: journalPluginId ?? JournalPluginId,
                 snapshotPluginId: snapshotPluginId ?? SnapshotPluginId,
                 tickInterval: tickInterval ?? TickInterval,
-                snapshotInterval: snapshotInterval ?? SnapshotInterval);
+                snapshotInterval: snapshotInterval ?? SnapshotInterval,
+                cleanupOldMessages: deleteUnusedJournalEntries ?? CleanupOldMessages,
+                cleanupOldSnapshots: deleteUnusedSnapshotEntries ?? CleanupOldSnapshots);
     }
 }
