@@ -130,15 +130,25 @@ namespace Akka.Persistence.Reminders
         /// </summary>
         public ReminderSettings WithSnapshotInterval(int snapshotInterval) => Copy(snapshotInterval: snapshotInterval);
 
+        /// <summary>
+        /// Returns a new instance of <see cref="ReminderSettings"/> with overriden <see cref="CleanupOldMessages"/>.
+        /// </summary>
+        public ReminderSettings WithCleanupOldMessages(bool cleanupOldMessages) => Copy(cleanupOldMessages: cleanupOldMessages);
+
+        /// <summary>
+        /// Returns a new instance of <see cref="ReminderSettings"/> with overriden <see cref="CleanupOldSnapshots"/>.
+        /// </summary>
+        public ReminderSettings WithCleanupOldSnapshots(bool cleanupOldSnapshots) => Copy(cleanupOldSnapshots: cleanupOldSnapshots);
+
         private ReminderSettings Copy(string persistenceId = null, string journalPluginId = null, string snapshotPluginId = null, 
-            TimeSpan? tickInterval = null, int? snapshotInterval = null, bool? deleteUnusedJournalEntries = null, bool? deleteUnusedSnapshotEntries = null) =>
-            new ReminderSettings(
+            TimeSpan? tickInterval = null, int? snapshotInterval = null, bool? cleanupOldMessages = null, bool? cleanupOldSnapshots = null) =>
+            new (
                 persistenceId: persistenceId ?? PersistenceId,
                 journalPluginId: journalPluginId ?? JournalPluginId,
                 snapshotPluginId: snapshotPluginId ?? SnapshotPluginId,
                 tickInterval: tickInterval ?? TickInterval,
                 snapshotInterval: snapshotInterval ?? SnapshotInterval,
-                cleanupOldMessages: deleteUnusedJournalEntries ?? CleanupOldMessages,
-                cleanupOldSnapshots: deleteUnusedSnapshotEntries ?? CleanupOldSnapshots);
+                cleanupOldMessages: cleanupOldMessages ?? CleanupOldMessages,
+                cleanupOldSnapshots: cleanupOldSnapshots ?? CleanupOldSnapshots);
     }
 }
